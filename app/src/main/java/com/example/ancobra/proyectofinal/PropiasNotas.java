@@ -14,4 +14,3 @@ public class PropiasNotas extends AppCompatActivity {
         setContentView(R.layout.notaspendientes);
     }
 }
- 
