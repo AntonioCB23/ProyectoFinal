@@ -7,11 +7,11 @@ import android.support.v7.app.AppCompatActivity;
  * Created by Ancobra on 05/07/2018.
  */
 
-public class PropiasNotas extends AppCompatActivity {
+public class MostrarNota extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.notaspendientes);
+        setContentView(R.layout.mostrar_nota);
 
 
     }

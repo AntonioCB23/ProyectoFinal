@@ -37,8 +37,8 @@ public class Menu extends AppCompatActivity {
             public void onClick(View v) {
                 Toast toast = Toast.makeText(getApplicationContext(), "Has seleccionado ver las notas pendientes", Toast.LENGTH_SHORT);
                 toast.show();
-                Intent nuevaNota= new Intent(getApplicationContext(), NotasPen.class);
-                startActivity(nuevaNota);
+                Intent notasPen= new Intent(getApplicationContext(), NotasPen.class);
+                startActivity(notasPen);
             }
         });
         //BOTON PARA COMPROBAR LAS NOTAS PROPIAMENTE HECHAS
@@ -47,7 +47,7 @@ public class Menu extends AppCompatActivity {
             public void onClick(View v) {
                 Toast toast = Toast.makeText(getApplicationContext(), "Has seleccionado ver tus notas publicadas", Toast.LENGTH_SHORT);
                 toast.show();
-                Intent nuevaNota= new Intent(getApplicationContext(), PropiasNotas.class);
+                Intent nuevaNota= new Intent(getApplicationContext(), MostrarNota.class);
                 startActivity(nuevaNota);
             }
         });

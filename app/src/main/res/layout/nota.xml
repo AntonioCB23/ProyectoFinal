@@ -6,10 +6,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <Button
+        android:id="@+id/btnEnviar2"
+        android:layout_width="109dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Enviar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/txtNota"
         android:layout_width="363dp"
-        android:layout_height="248dp"
+        android:layout_height="37dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
@@ -24,34 +36,32 @@
         android:id="@+id/editText2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="84dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginStart="156dp"
+        android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="Autor"
         android:inputType="textPersonName"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText" />
+        app:layout_constraintTop_toBottomOf="@+id/txtNota" />
 
     <CheckBox
         android:id="@+id/cbUrgente"
         android:layout_width="107dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="136dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginStart="24dp"
         android:text="Urgente"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText2" />
+        tools:layout_editor_absoluteY="83dp" />
 
     <Button
         android:id="@+id/btnEnviar"
-        android:layout_width="wrap_content"
+        android:layout_width="109dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="40dp"
         android:text="Enviar"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cbUrgente" />
+        app:layout_constraintStart_toEndOf="@+id/btnEnviar2" />
 
 </android.support.constraint.ConstraintLayout>
