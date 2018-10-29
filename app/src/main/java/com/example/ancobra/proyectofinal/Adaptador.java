@@ -44,7 +44,11 @@ public class Adaptador extends BaseAdapter {
         } else contenedor=(ViewHolder)convertView.getTag();
         Publicacion nota = publicaciones.get(position);
         contenedor.txtAutor.setText(nota.getAutor());
-        contenedor.txtDescripcion.setText(nota.getContenido());
+        if(nota.getContenido().length()>50){
+            contenedor.txtDescripcion.setText(nota.getContenido().substring(0,50)+"...");
+        }else{
+            contenedor.txtDescripcion.setText(nota.getContenido());
+        }
         return convertView;
     }
     class ViewHolder {

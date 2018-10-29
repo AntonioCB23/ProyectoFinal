@@ -1,11 +1,16 @@
 package com.example.ancobra.proyectofinal;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 /**
  * Created by Ancobra on 05/07/2018.
@@ -16,6 +21,11 @@ public class Menu extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.menu);
+
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getSupportActionBar().setIcon(R.drawable.icon);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00a6a8")));
+
         Button btnNuevo = (Button) findViewById(R.id.btnNuevo);
         Button btnPen = (Button) findViewById(R.id.btnPendiente);
         Button btnNotas = (Button) findViewById(R.id.btnMisNotas);
@@ -47,8 +57,8 @@ public class Menu extends AppCompatActivity {
             public void onClick(View v) {
                 Toast toast = Toast.makeText(getApplicationContext(), "Has seleccionado ver tus notas publicadas", Toast.LENGTH_SHORT);
                 toast.show();
-                Intent nuevaNota= new Intent(getApplicationContext(), MostrarNota.class);
-                startActivity(nuevaNota);
+                Intent mostrarNota= new Intent(getApplicationContext(), MostrarNota.class);
+                startActivity(mostrarNota);
             }
         });
         //BOTON SALIR
