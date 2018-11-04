@@ -34,7 +34,7 @@ public class MostrarNota extends AppCompatActivity {
         TextView autor = (TextView)findViewById(R.id.txtAutor);
         CheckBox urgente = findViewById(R.id.chkUrgente);
         String[] archivos = fileList();
-        if (existe(archivos, "notas.txt"))
+        /*if (existe(archivos, "notas.txt"))
             try {
                 InputStreamReader archivo = new InputStreamReader(
                         openFileInput("notas.txt"));
@@ -51,11 +51,11 @@ public class MostrarNota extends AppCompatActivity {
                 descr.setText(todo);
                 autor.setText(f.getName());
             } catch (IOException e) {
-            }
-        /*Intent it = getIntent();
+            }*/
+        Intent it = getIntent();
         descr.setText(it.getStringExtra("texto"));
         autor.setText(it.getStringExtra("autor"));
-        urgente.setChecked(it.getBooleanExtra("urge",false));*/
+        urgente.setChecked(it.getBooleanExtra("urge",false));
     }
     boolean existe(String[] archivos, String archbusca) {
         for (int f = 0; f < archivos.length; f++)

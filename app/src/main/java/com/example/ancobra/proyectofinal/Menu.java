@@ -57,8 +57,8 @@ public class Menu extends AppCompatActivity {
             public void onClick(View v) {
                 Toast toast = Toast.makeText(getApplicationContext(), "Has seleccionado ver tus notas publicadas", Toast.LENGTH_SHORT);
                 toast.show();
-                Intent mostrarNota= new Intent(getApplicationContext(), MostrarNota.class);
-                startActivity(mostrarNota);
+                Intent NotasPropias= new Intent(getApplicationContext(), NotasPropias.class);
+                startActivity(NotasPropias);
             }
         });
         //BOTON SALIR
