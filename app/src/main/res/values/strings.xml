@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">WeUnite</string>
+
+    <string name="add_nota">Add nota</string>
+    <string name="ver_nota">Visualizacion de la nota</string>
+
+    <string name="menu_crear">crear nota</string>
+    <string name="menu_editar">editar nota</string>
+    <string name="menu_borrar">eliminar nota</string>
+    <string name="menu_borrar_todas">borrar todas</string>
+    <string name="menu_salir">salir</string>
 </resources>

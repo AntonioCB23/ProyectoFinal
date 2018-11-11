@@ -1,6 +1,8 @@
 package com.example.ancobra.proyectofinal;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +12,20 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class Adaptador extends BaseAdapter {
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+
+
+//ESTA CLASE QUEDA DESHABILITADA POR EL MOMENTO, HASTA QUE FUNCIONE POR COMPLETO LA APP
+
+/*public class Adaptador extends BaseAdapter {
     ArrayList<Publicacion> publicaciones;
     LayoutInflater inflador;
     public Adaptador(Context contexto, ArrayList<Publicacion> lista) {
@@ -54,4 +69,4 @@ public class Adaptador extends BaseAdapter {
     class ViewHolder {
         TextView txtAutor, txtDescripcion;
     }
-}
+}*/

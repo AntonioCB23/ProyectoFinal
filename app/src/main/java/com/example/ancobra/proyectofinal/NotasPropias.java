@@ -1,101 +1,138 @@
 package com.example.ancobra.proyectofinal;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.List;
 
 public class NotasPropias extends AppCompatActivity {
-        //final ArrayNotas global=(ArrayNotas) getApplicationContext();
-        Publicacion publi;
-        String[] arrayNotas;
-        ArrayList<Publicacion> notasPropias;
+    private static final int ADD = Menu.FIRST;
+    private static final int DELETE = Menu.FIRST +1;
+    private static final int EXIST = Menu.FIRST +2;
+    ListView lvNotas;
+    TextView textLista;
+    BDadap db;
+    List<String> item = null;
+    String getTitle;
 
-        @Override
-        protected void onCreate (Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.notaspropias);
+
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        //getActionBar().setIcon(R.drawable.icon);
+        getSupportActionBar().setIcon(R.drawable.icon);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00a6a8")));
 
-        super.onCreate(savedInstanceState);
-        //Intent intent = getIntent();
-        setContentView(R.layout.notaspropias);
-            arrayNotas = fileList();
-            notasPropias = rellenaParaPruebas();
-            for (int i = 0; i < arrayNotas.length; i++) {
-                try {
-                    InputStreamReader archivo = new InputStreamReader(
-                            openFileInput(arrayNotas[i]));
-                    File f =  new File(arrayNotas[i]);
-                    BufferedReader br = new BufferedReader(archivo);
-                    String linea = br.readLine();
-                    String todo = "";
-                    while (linea != null) {
-                        todo = todo + linea + "\n";
-                        linea = br.readLine();
-                    }
-                    br.close();
-                    archivo.close();
-                    notasPropias.add(new Publicacion(todo.trim(),"Un tipo interesante".trim(), false));
-                }catch (IOException e){}
-            }
-        ListView ls = findViewById(R.id.lbPropias);
-        final Adaptador adap = new Adaptador(this, notasPropias);
-        ls.setAdapter(adap);
-        ls.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        textLista = findViewById(R.id.textView_lista);
+        lvNotas = findViewById(R.id.listView_Lista);
+
+        lvNotas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.i("PRUEBA---", "Clickado");
-                Intent muestraNota = new Intent(getApplicationContext(), MostrarNota.class);
-                muestraNota.putExtra("texto", notasPropias.get(i).contenido);
-                muestraNota.putExtra("autor", notasPropias.get(i).autor);
-                muestraNota.putExtra("urge", notasPropias.get(i).urgente);
-                startActivity(muestraNota);
+                getTitle = (String) lvNotas.getItemAtPosition(i);
+                actividad("ver");
             }
         });
-        ls.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                //Publicacion nota= notas.get(i);
-                Toast toast = Toast.makeText(getApplicationContext(), "Funciona!!! ", Toast.LENGTH_LONG);
-                    File f =  new File(arrayNotas[i]);
-                if (f.delete())
-                    Log.i("PRUEBA---", "Borrado!!!");
-                else
-                    Log.i("PRUEBA---", "Aquí no pasa nada");
-
-                notasPropias.remove(i);
-                adap.notifyDataSetChanged();
-                return true;
-            }
-        });
+        mostrarNotas();
     }
 
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu, menu);
+        menu.add(1,ADD,0,R.string.menu_crear);
+        menu.add(2,DELETE,0,R.string.menu_borrar);
+        menu.add(3,EXIST,0,R.string.menu_salir);
+        super.onCreateOptionsMenu(menu);
+        return true;
+    }
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id = item.getItemId();
+        switch (id){
+            case ADD:
+                actividad("add");
+                return true ;
+            case DELETE:
+                return true ;
+            case EXIST:
+                finish();
+                return true ;
+                default:
+                    return onOptionsItemSelected(item);
+        }
+    }
+    public void actividad (String act){
+        String type = "";
+        String content = "";
+        if(act.equals("add")){
+            type = "add";
+            Intent intent= new Intent(getApplicationContext(),AddNota.class);
+            intent.putExtra("type",type);
+            startActivity(intent);
+        }else if (act.equals("ver")){
+            Intent intent = new Intent(getApplicationContext(),VerNota.class);
+            intent.putExtra("autor",getNota());
+            intent.putExtra("texto",getTitle);
+            intent.putExtra("urge","N");
+            startActivity(intent);
+        }
+    }
 
-        private ArrayList<Publicacion> rellenaParaPruebas () {
-        ArrayList<Publicacion> hola = new ArrayList<Publicacion>();
-        ;
-        Publicacion pb1 = new Publicacion("Esto es una prueba", "Antonio", false);
-        hola.add(pb1);
-        Publicacion pb2 = new Publicacion("Esto es una prueba, esta vez algo más larga", "Un individuo amable", true);
-        hola.add(pb2);
-        Publicacion pb3 = new Publicacion("Bueno esta nota se pasa de larga, pero es para tratar de comprobar la funcionalidad al completo del ListView que pretendemos incorporar", "Geralt de Rivia", true);
-        hola.add(pb3);
-        return hola;
+    private void mostrarNotas(){
+        db = new BDadap(this);
+        Cursor c = db.getTodasNotas();
+        item = new ArrayList<String>();
+        String autor = "";
+
+        if (c.moveToFirst()== false ){
+            textLista.setText("No hay notas para mostrar");
+        }else{
+            do{
+                autor = c.getString(2);
+                item.add(autor);
+            }while (c.moveToNext());
+        }
+        ArrayAdapter<String> adaptador= new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,item);
+        lvNotas.setAdapter(adaptador);
     }
+    public String getNota(){
+        String type = "",texto ="";
+
+        db = new BDadap(this);
+        Cursor c = db.getNota(getTitle);
+        if (c.moveToFirst()) {
+            do {
+                texto = c.getString(1);
+            } while (c.moveToNext());
+        }
+        return texto;
     }
+
+    public String getUrgencia(){
+        String type = "",texto ="";
+
+        db = new BDadap(this);
+        Cursor c = db.getNota(getTitle);
+                if(c.moveToFirst()){
+                do{
+            texto = c.getString(3);
+
+         }while(c.moveToNext());
+
+}
+        return texto;
+    }
+}
