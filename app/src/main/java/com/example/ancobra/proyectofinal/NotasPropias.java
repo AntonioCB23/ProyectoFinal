@@ -54,8 +54,7 @@ public class NotasPropias extends AppCompatActivity {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
         menu.add(1,ADD,0,R.string.menu_crear);
-        menu.add(2,DELETE,0,R.string.menu_borrar);
-        menu.add(3,EXIST,0,R.string.menu_salir);
+        menu.add(2,EXIST,0,R.string.menu_salir);
         super.onCreateOptionsMenu(menu);
         return true;
     }

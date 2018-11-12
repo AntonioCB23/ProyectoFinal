@@ -39,7 +39,11 @@ public class AddNota extends AppCompatActivity {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addNota();
+                if(type.equals("add")){
+                    addNota();
+                }else{
+
+                }
             }
         });
     }

@@ -24,6 +24,7 @@
         <activity android:name=".NotasPropias"/>
         <activity android:name=".AddNota"/>
         <activity android:name=".VerNota"/>
+        <activity android:name=".NotasPen"/>
     </application>
 
 </manifest>
