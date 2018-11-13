@@ -12,34 +12,25 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import java.util.ArrayList;
 
 
-//ESTA CLASE QUEDA DESHABILITADA POR EL MOMENTO, HASTA QUE FUNCIONE POR COMPLETO LA APP
 
-/*public class Adaptador extends BaseAdapter {
-    ArrayList<Publicacion> publicaciones;
+public class Adaptador extends BaseAdapter {
+    ArrayList<Nota> Notas;
     LayoutInflater inflador;
-    public Adaptador(Context contexto, ArrayList<Publicacion> lista) {
+
+    public Adaptador(Context contexto, ArrayList<Nota> lista) {
         this.inflador = LayoutInflater.from(contexto);
-        this.publicaciones = lista;
+        this.Notas = lista;
     }
     @Override
     public int getCount() {
-        return publicaciones.size();
+        return Notas.size();
     }
     // Devuelve el elemento asociado con la posición en el ListView
     @Override
     public Object getItem(int position) {
-        return publicaciones.get(position);
+        return Notas.get(position);
     }
     @Override
     public long getItemId(int position) {
@@ -57,16 +48,16 @@ import java.util.ArrayList;
             contenedor.txtDescripcion=(TextView) convertView.findViewById(R.id.textView3);
             convertView.setTag(contenedor);
         } else contenedor=(ViewHolder)convertView.getTag();
-        Publicacion nota = publicaciones.get(position);
+        Nota nota = Notas.get(position);
         contenedor.txtAutor.setText(nota.getAutor());
-        if(nota.getContenido().length()>50){
-            contenedor.txtDescripcion.setText(nota.getContenido().substring(0,50)+"...");
+        if(nota.getTexto().length()>50){
+            contenedor.txtDescripcion.setText(nota.getTexto().substring(0,50)+"...");
         }else{
-            contenedor.txtDescripcion.setText(nota.getContenido());
+            contenedor.txtDescripcion.setText(nota.getTexto());
         }
         return convertView;
     }
     class ViewHolder {
         TextView txtAutor, txtDescripcion;
     }
-}*/
+}

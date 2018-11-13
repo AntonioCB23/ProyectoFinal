@@ -46,6 +46,7 @@ public class VerNota extends AppCompatActivity {
         }else{
             URGE.setChecked(false);
         }
+        URGE.setEnabled(false);
     }
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();

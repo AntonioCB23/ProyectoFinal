@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -53,6 +54,7 @@ public class NotasPen extends AppCompatActivity implements Response.Listener<JSO
     Button btnHit;
     TextView txtJson;
     ProgressDialog pd;
+    ArrayList<Nota> arrayNotas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,17 +67,21 @@ public class NotasPen extends AppCompatActivity implements Response.Listener<JSO
 
         lvNotas = findViewById(R.id.lvNotas);
 
-        btnHit = (Button) findViewById(R.id.btnHit);
-        txtJson = (TextView) findViewById(R.id.tvJsonItem);
-
+       // btnHit = (Button) findViewById(R.id.btnHit);
+       // txtJson = (TextView) findViewById(R.id.txPrueba);
+arrayNotas = new ArrayList<>();
 
         request = Volley.newRequestQueue(this);
+        cargarWebService();
 
-        btnHit.setOnClickListener(new View.OnClickListener() {
+        lvNotas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View v) {
-                cargarWebService();
-                //new JsonTask().execute("http://192.168.0.32/WebService/conexion.php");
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(getApplicationContext(),VerNota.class);
+                intent.putExtra("autor",arrayNotas.get(i).getAutor());
+                intent.putExtra("texto",arrayNotas.get(i).getTexto());
+                intent.putExtra("urge",arrayNotas.get(i).getUrgente());
+                startActivity(intent);
             }
         });
     }
@@ -105,20 +111,28 @@ public class NotasPen extends AppCompatActivity implements Response.Listener<JSO
         progreso.hide();
         Log.i("Response: ", ""+response);
 
-        Nota nota = new Nota();
+        Nota nota;
 
         try {
             JSONArray json = response.getJSONArray("notas");
-            JSONObject jsonObject = null;
-            jsonObject = json.getJSONObject(0);
-            nota.setAutor(jsonObject.optString("Autor"));
-            nota.setTexto(jsonObject.optString("Contenido"));
-            nota.setUrgente(jsonObject.optString("Urgente"));
+            for (int i = 0; i < json.length() ; i++) {
+                JSONObject jsonObject = null;
+                jsonObject = json.getJSONObject(i);
+                nota = new Nota(jsonObject.optString("Autor"),jsonObject.optString("Contenido"),jsonObject.optString("Urgente"));
+                arrayNotas.add(nota);
+            }
 
+            /*nota.setAutor(jsonObject.optString("Autor"));
+            nota.setTexto(jsonObject.optString("Contenido"));
+            nota.setUrgente(jsonObject.optString("Urgente"));*/
+            //txtJson.setText(nota.getAutor()+" "+nota.getTexto()+" "+nota.getUrgente());
+
+            Adaptador adap = new Adaptador(NotasPen.this, arrayNotas);
+            lvNotas.setAdapter(adap);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        txtJson.setText(nota.getAutor()+" "+nota.getTexto()+" "+nota.getUrgente());
+
     }
 
 

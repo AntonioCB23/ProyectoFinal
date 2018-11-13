@@ -25,7 +25,14 @@ public class Nota {
         return urgente;
     }
 
+    public Nota(String autor, String texto, String urgente) {
+        this.autor = autor;
+        this.texto = texto;
+        this.urgente = urgente;
+    }
+
     public void setUrgente(String urgente) {
         this.urgente = urgente;
+
     }
 }
