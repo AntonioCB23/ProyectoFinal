@@ -1,12 +1,21 @@
 package com.example.ancobra.proyectofinal;
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.widget.Button;
@@ -14,21 +23,45 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONObject;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class AddNota extends AppCompatActivity {
+public class AddNota extends AppCompatActivity implements Response.Listener<JSONObject>,Response.ErrorListener{
     String type;
     EditText AUTOR, TEXTO;
     CheckBox URGE;
     private static final int SALIR = Menu.FIRST;
     BDadap DB;
-
-
+    ProgressDialog progreso;
+    SharedPreferences prefs; //PREFERENCIAS
+    SharedPreferences.Editor editor; //EDITOR DE PREFENCIASS
+    String database, ip;
+    RequestQueue request;
+    JsonObjectRequest jsonObjectRequest;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.addnota);
-
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getSupportActionBar().setIcon(R.drawable.icon);
+        getSupportActionBar().setTitle("WeUnite > Añadir nota");
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5641cb")));
+        prefs = this.getSharedPreferences("MisPreferencias", Context.MODE_PRIVATE);
+        editor = prefs.edit();
+        if(prefs.getBoolean("off",true)){
+            database = "notasPersonales";
+        }else{
+            database = "Notas";
+        }
+        ip = prefs.getString("ip","");
         Button add = findViewById(R.id.button_Add);
         AUTOR = findViewById(R.id.editText_Autor);
          TEXTO = findViewById(R.id.editText_Texto);
@@ -36,16 +69,39 @@ public class AddNota extends AppCompatActivity {
 
         Bundle bundle = this.getIntent().getExtras();
         type = bundle.getString("type");
+
+        request = Volley.newRequestQueue(this);
+        
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(type.equals("add")){
+                if(database.equals("Notas")){
+                    cargarWebService();
                     addNota();
                 }else{
-
+                    addNota();
                 }
+
             }
         });
+    }
+
+    private void cargarWebService() {
+        progreso = new ProgressDialog(this);
+        progreso.setMessage("Enviando datos.... Si tarda demasiado debería revisar si la ip introducida es correcta");
+        progreso.show();
+        String url="";
+        if (URGE.isChecked()){
+             url = "http://"+ip+"/WebService/enviarDatos.php?autor="+AUTOR.getText().toString()+
+                    "&texto="+TEXTO.getText().toString()+"&urgente=S";
+        }else{
+            url = "http://"+ip+"/WebService/enviarDatos.php?autor="+AUTOR.getText().toString()+
+                    "&texto="+TEXTO.getText().toString()+"&urgente=N";
+        }
+        url = url.replace(" ","%20");
+        Log.i("Response: ", ""+url);
+        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,url,null,this,this);
+        request.add(jsonObjectRequest);
     }
 
     @Override
@@ -74,14 +130,14 @@ public class AddNota extends AppCompatActivity {
     }
 
     private void addNota(){
-        DB = new BDadap(this);
+        DB = new BDadap(this,database);
         String autor, texto;
         Boolean urge;
         autor = AUTOR.getText().toString().trim();
         texto = TEXTO.getText().toString().trim();
         urge = URGE.isChecked();
 
-        if (!autor.equals("")){
+        if (!autor.equals("") ||!texto.equals("")){
             Cursor c = DB.getNota(autor);
             String getTitle="";
             if(c.moveToFirst()){
@@ -99,7 +155,7 @@ public class AddNota extends AppCompatActivity {
                 actividad(autor,texto,"N");
             }
         }else{
-            Toast.makeText(this,"Introduzca un autor", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Introduzca un autor y un texto", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -111,13 +167,22 @@ public class AddNota extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private boolean enviarDatos()  {
-        try {
-            URL obj = new URL("http_//192.168.0.32/Proyectos_PHP/WebService/insertarDatos.php");
-            return true;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return true;
+    @Override
+    public void onErrorResponse(VolleyError error) {
+        progreso.hide();
     }
+
+    @Override
+    public void onResponse(JSONObject response) {
+        progreso.hide();
+        limpia();
+        finish();
+    }
+
+    public void limpia(){
+        AUTOR.setText("");
+        TEXTO.setText("");
+        URGE.setChecked(false);
+    }
+
 }

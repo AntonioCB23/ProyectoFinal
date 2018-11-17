@@ -38,7 +38,7 @@
         android:layout_marginTop="8dp"
         android:duplicateParentState="false"
         android:focusable="false"
-        android:text="Urgente"
+        android:text="@string/urgente"
         app:layout_constraintEnd_toEndOf="@+id/textView_texto"
         app:layout_constraintTop_toBottomOf="@+id/textView_texto" />
 
@@ -47,7 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Autor: "
+        android:text="@string/autor"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="@+id/textView_texto"
         app:layout_constraintTop_toBottomOf="@+id/textView_texto" />

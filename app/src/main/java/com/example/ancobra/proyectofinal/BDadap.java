@@ -14,9 +14,9 @@ public class BDadap extends SQLiteOpenHelper {
 
     private  static final String DATABASE ="Notas";
     private  static final String TABLE ="Notas";
+    public BDadap(Context context, String database) {
 
-    public BDadap(Context context) {
-        super(context, DATABASE, null, 1);
+        super(context, database, null, 1);
     }
 
     @Override
@@ -43,13 +43,13 @@ public class BDadap extends SQLiteOpenHelper {
     public Cursor getNota(String condition){
         String col[] ={TABLE_ID,AUTOR,TEXTO,URGE};
         String[] args = new String[] {condition};
-        Cursor c = this.getReadableDatabase().query(TABLE,col, TEXTO+"=?",args,null,null, null);
+        Cursor c = this.getReadableDatabase().query(TABLE,col, TEXTO+"=?",args,null,null, TABLE_ID+" DESC");
         return c;
     }
 
     public Cursor getTodasNotas(){
         String col[] ={TABLE_ID,AUTOR,TEXTO,URGE};
-        Cursor c = this.getReadableDatabase().query(TABLE,col,null,null,null,null,null);
+        Cursor c = this.getReadableDatabase().query(TABLE,col,null,null,null,null,TABLE_ID+" DESC");
         return c;
     }
 

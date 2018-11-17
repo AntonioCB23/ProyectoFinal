@@ -2,8 +2,10 @@ package com.example.ancobra.proyectofinal;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
@@ -47,15 +49,15 @@ import java.util.List;
 
 public class NotasPen extends AppCompatActivity implements Response.Listener<JSONObject>,Response.ErrorListener{
     private static final int ADD = Menu.FIRST;
-    private static final int DELETE = Menu.FIRST +1;
     private static final int EXIST = Menu.FIRST +2;
     ListView lvNotas;
-
-    Button btnHit;
-    TextView txtJson;
-    ProgressDialog pd;
+    ProgressDialog progreso;
+    RequestQueue request;
+    JsonObjectRequest jsonObjectRequest;
     ArrayList<Nota> arrayNotas;
-
+    SharedPreferences prefs; //PREFERENCIAS
+    SharedPreferences.Editor editor; //EDITOR DE PREFENCIAS
+    String ip;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,12 +65,15 @@ public class NotasPen extends AppCompatActivity implements Response.Listener<JSO
 
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().setIcon(R.drawable.icon);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00a6a8")));
+        getSupportActionBar().setTitle("WeUnite > Notas pendientes");
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5641cb")));
 
         lvNotas = findViewById(R.id.lvNotas);
 
-       // btnHit = (Button) findViewById(R.id.btnHit);
-       // txtJson = (TextView) findViewById(R.id.txPrueba);
+        prefs = this.getSharedPreferences("MisPreferencias", Context.MODE_PRIVATE);
+        editor = prefs.edit();
+        ip = prefs.getString("ip","");
+        Log.i("Response: ", ""+ip);
 arrayNotas = new ArrayList<>();
 
         request = Volley.newRequestQueue(this);
@@ -88,18 +93,14 @@ arrayNotas = new ArrayList<>();
 
     private void cargarWebService() {
         progreso = new ProgressDialog(this);
-        progreso.setMessage("Consultando");
+        progreso.setMessage("Consultando.. Si tarda demasiado debería comprobar que la dirección ip sea correcta");
         progreso.show();
-        String url = "http://192.168.0.32/WebService/conexion.php";
+        String url = "http://"+ip+"/WebService/conexion.php";
 
         jsonObjectRequest = new JsonObjectRequest(url,null,this,this);
         request.add(jsonObjectRequest);
 
     }
-
-    ProgressDialog progreso;
-    RequestQueue request;
-    JsonObjectRequest jsonObjectRequest;
 
     @Override
     public void onErrorResponse(VolleyError error) {
@@ -121,11 +122,6 @@ arrayNotas = new ArrayList<>();
                 nota = new Nota(jsonObject.optString("Autor"),jsonObject.optString("Contenido"),jsonObject.optString("Urgente"));
                 arrayNotas.add(nota);
             }
-
-            /*nota.setAutor(jsonObject.optString("Autor"));
-            nota.setTexto(jsonObject.optString("Contenido"));
-            nota.setUrgente(jsonObject.optString("Urgente"));*/
-            //txtJson.setText(nota.getAutor()+" "+nota.getTexto()+" "+nota.getUrgente());
 
             Adaptador adap = new Adaptador(NotasPen.this, arrayNotas);
             lvNotas.setAdapter(adap);

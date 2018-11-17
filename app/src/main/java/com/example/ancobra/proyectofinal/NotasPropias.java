@@ -1,6 +1,8 @@
 package com.example.ancobra.proyectofinal;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -28,18 +30,28 @@ public class NotasPropias extends AppCompatActivity {
     BDadap db;
     List<String> item = null;
     String getTitle;
-
+    SharedPreferences prefs; //PREFERENCIAS
+    SharedPreferences.Editor editor; //EDITOR DE PREFENCIAS
+    String database;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notaspropias);
 
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().setIcon(R.drawable.icon);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00a6a8")));
+        getSupportActionBar().setTitle("WeUnite > Notas propias");
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5641cb")));
 
         textLista = findViewById(R.id.textView_lista);
         lvNotas = findViewById(R.id.listView_Lista);
 
+        prefs = this.getSharedPreferences("MisPreferencias", Context.MODE_PRIVATE);
+        editor = prefs.edit();
+        if(prefs.getBoolean("off",true)){
+            database = "notasPersonales";
+        }else{
+            database = "Notas";
+        }
         lvNotas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -91,7 +103,7 @@ public class NotasPropias extends AppCompatActivity {
     }
 
     private void mostrarNotas(){
-        db = new BDadap(this);
+            db = new BDadap(this,database);
         Cursor c = db.getTodasNotas();
         item = new ArrayList<String>();
         String autor = "";
@@ -110,7 +122,7 @@ public class NotasPropias extends AppCompatActivity {
     public String getNota(){
         String type = "",texto ="";
 
-        db = new BDadap(this);
+        db = new BDadap(this,database);
         Cursor c = db.getNota(getTitle);
         if (c.moveToFirst()) {
             do {
@@ -123,7 +135,7 @@ public class NotasPropias extends AppCompatActivity {
     public String getUrgencia(){
         String type = "",texto ="";
 
-        db = new BDadap(this);
+        db = new BDadap(this,database);
         Cursor c = db.getNota(getTitle);
                 if(c.moveToFirst()){
                 do{

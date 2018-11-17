@@ -1,6 +1,8 @@
 package com.example.ancobra.proyectofinal;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -11,6 +13,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 public class MenuApp  extends AppCompatActivity {
+    SharedPreferences prefs; //PREFERENCIAS
+    SharedPreferences.Editor editor; //EDITOR DE PREFENCIAS
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -18,13 +22,23 @@ public class MenuApp  extends AppCompatActivity {
 
             this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
             getSupportActionBar().setIcon(R.drawable.icon);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00a6a8")));
+            getSupportActionBar().setTitle("WeUnite > Menú");
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5641cb")));
 
             Button btnNuevo = (Button) findViewById(R.id.btnNuevo);
             Button btnPen = (Button) findViewById(R.id.btnPendiente);
             Button btnNotas = (Button) findViewById(R.id.btnMisNotas);
             Button btnSalir = (Button) findViewById(R.id.btnSalir);
 
+            prefs = this.getSharedPreferences("MisPreferencias", Context.MODE_PRIVATE);
+            editor = prefs.edit();
+            if (prefs.getBoolean("off",true)){
+                btnPen.setVisibility(View.GONE);
+                btnNuevo.setY(200);
+                btnNotas.setY(205);
+                btnSalir.setY(210);
+
+            }
             //BOTON DE NOTA NUEVA
             btnNuevo.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -62,7 +76,8 @@ public class MenuApp  extends AppCompatActivity {
                 public void onClick(View v) {
                     Toast toast = Toast.makeText(getApplicationContext(), "Salir del programa", Toast.LENGTH_SHORT);
                     toast.show();
-                    System.exit(0);
+                    Intent Main= new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(Main);
                 }
             });
         }

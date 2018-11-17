@@ -1,12 +1,20 @@
 <resources>
     <string name="app_name">WeUnite</string>
 
-    <string name="add_nota">Add nota</string>
+    <string name="add_nota">Añadir nota</string>
     <string name="ver_nota">Visualizacion de la nota</string>
 
-    <string name="menu_crear">crear nota</string>
-    <string name="menu_editar">editar nota</string>
-    <string name="menu_borrar">eliminar nota</string>
-    <string name="menu_borrar_todas">borrar todas</string>
-    <string name="menu_salir">salir</string>
+    <string name="menu_crear">Añadir nota</string>
+    <string name="menu_editar">Editar nota</string>
+    <string name="menu_borrar">Eliminar nota</string>
+    <string name="menu_borrar_todas">Borrar todas</string>
+    <string name="menu_salir">Salir</string>
+    <string name="offline">Modo offline</string>
+    <string name="acceder">Acceder</string>
+    <string name="ip_error">Ip no válida, introduzca la ip en formato ###.###.#.## o sin puntos</string>
+    <string name="consulta_progress">Consultando, si se demora la espera compruebe que la ip introducida es la correcta</string>
+    <string name="menu_notaspen">Notas pendientes</string>
+    <string name="menu_notaspropias">Notas propias</string>
+    <string name="urgente">Urgente</string>
+    <string name="autor">Autor:</string>
 </resources>
