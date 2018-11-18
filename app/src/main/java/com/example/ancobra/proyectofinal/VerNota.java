@@ -55,6 +55,7 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
         getSupportActionBar().setTitle("WeUnite > Visualizar nota");
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5641cb")));
 
+        //INICIALIZACION DE VARIABLES Y OBTENCION DE DATOS DE PREFERENCIAS
         prefs = this.getSharedPreferences("MisPreferencias", Context.MODE_PRIVATE);
         editor = prefs.edit();
         if(prefs.getBoolean("off",true)){
@@ -64,7 +65,6 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
         }
         ip = prefs.getString("ip","");
         Bundle bundle = this.getIntent().getExtras();
-
         autor = bundle.getString("autor");
         texto = bundle.getString("texto");
         AUTOR = findViewById(R.id.textView_autor);
@@ -73,6 +73,8 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
         request = Volley.newRequestQueue(this);
         AUTOR.setText(autor);
         TEXTO.setText(texto);
+
+        //SEGUN LA URGENCIA DE LA NOTA CHECKEA EL CKECKBOX O NO
         if(bundle.getString("urge").equals("S")){
             URGE.setChecked(true);
         }else{
@@ -80,6 +82,12 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
         }
         URGE.setEnabled(false);
     }
+
+    /**
+     * Añade las opciones de menu en la parte superior
+     * @param menu menu a gestionar
+     * @return true
+     */
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
@@ -87,11 +95,17 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
         super.onCreateOptionsMenu(menu);
         return true;
     }
+
+    /**
+     * Gestiona la pulsacion del menu
+     * @param item opcion seleciona
+     * @return la opcion correcta
+     */
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
         switch (id){
             case DELETE:
-
+                //MENSAJE DE CONFIRMACION
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Mensaje de confirmación");
                 builder.setMessage("A continuación se borrará la nota, ¿estás seguro?");
@@ -128,6 +142,10 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
+
+    /**
+     * Borra los datos solicitados de la bd externa
+     */
     private void borrarDatos() {
         progreso = new ProgressDialog(this);
         progreso.setMessage("Borrando datos....");
@@ -140,11 +158,20 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
         jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,url,null,this,this);
         request.add(jsonObjectRequest);
     }
+
+    /**
+     * Si la sentencia es erronea entra aqui
+     * @param error error que da el metodo
+     */
     @Override
     public void onErrorResponse(VolleyError error) {
         progreso.hide();
     }
 
+    /**
+     * Si la sentencia es correcta entra aqui
+     * @param response
+     */
     @Override
     public void onResponse(JSONObject response) {
         progreso.hide();

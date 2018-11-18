@@ -22,17 +22,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NotasPropias extends AppCompatActivity {
+    //OPCIONES DE MENU
     private static final int ADD = Menu.FIRST;
-    private static final int DELETE = Menu.FIRST +1;
     private static final int EXIST = Menu.FIRST +2;
+
     ListView lvNotas;
     TextView textLista;
     BDadap db;
-    List<String> item = null;
-    String getTitle;
+    String getContenido;
     SharedPreferences prefs; //PREFERENCIAS
     SharedPreferences.Editor editor; //EDITOR DE PREFENCIAS
     String database;
+    ArrayList<Nota> arrayNotas;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notaspropias);
@@ -44,6 +45,7 @@ public class NotasPropias extends AppCompatActivity {
 
         textLista = findViewById(R.id.textView_lista);
         lvNotas = findViewById(R.id.listView_Lista);
+        arrayNotas = new ArrayList<>();
 
         prefs = this.getSharedPreferences("MisPreferencias", Context.MODE_PRIVATE);
         editor = prefs.edit();
@@ -55,13 +57,17 @@ public class NotasPropias extends AppCompatActivity {
         lvNotas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                getTitle = (String) lvNotas.getItemAtPosition(i);
+                getContenido = arrayNotas.get(i).getTexto();
                 actividad("ver");
             }
         });
         mostrarNotas();
     }
-
+    /**
+     * Añade las opciones de menu en la parte superior
+     * @param menu menu a gestionar
+     * @return true
+     */
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
@@ -70,13 +76,17 @@ public class NotasPropias extends AppCompatActivity {
         super.onCreateOptionsMenu(menu);
         return true;
     }
+
+    /**
+     * Gestiona la pulsacion del menu
+     * @param item opcion seleciona
+     * @return la opcion correcta
+     */
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
         switch (id){
             case ADD:
                 actividad("add");
-                return true ;
-            case DELETE:
                 return true ;
             case EXIST:
                 finish();
@@ -85,9 +95,13 @@ public class NotasPropias extends AppCompatActivity {
                     return onOptionsItemSelected(item);
         }
     }
+
+    /**
+     * Gestiona si la accion que queremos hacer es añadir o visualizar una nota
+     * @param act accion
+     */
     public void actividad (String act){
         String type = "";
-        String content = "";
         if(act.equals("add")){
             type = "add";
             Intent intent= new Intent(getApplicationContext(),AddNota.class);
@@ -95,35 +109,46 @@ public class NotasPropias extends AppCompatActivity {
             startActivity(intent);
         }else if (act.equals("ver")){
             Intent intent = new Intent(getApplicationContext(),VerNota.class);
-            intent.putExtra("autor",getNota());
-            intent.putExtra("texto",getTitle);
+            intent.putExtra("autor",getAutor());
+            intent.putExtra("texto",getContenido);
             intent.putExtra("urge","N");
             startActivity(intent);
         }
     }
 
+    /**
+     * Muestra todas las notas de la base de datos interna
+     */
     private void mostrarNotas(){
             db = new BDadap(this,database);
         Cursor c = db.getTodasNotas();
-        item = new ArrayList<String>();
-        String autor = "";
+        String texto = "";
 
         if (c.moveToFirst()== false ){
             textLista.setText("No hay notas para mostrar");
         }else{
             do{
-                autor = c.getString(2);
-                item.add(autor);
+                texto = c.getString(2);
+                getContenido=texto;
+                Nota n = new Nota(getAutor(),texto,getUrgencia());
+                arrayNotas.add(n);
             }while (c.moveToNext());
         }
-        ArrayAdapter<String> adaptador= new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,item);
-        lvNotas.setAdapter(adaptador);
+
+        //INICIALIZACION DEL ADAPTADOR Y AÑADIDO AL LISTVIEW
+        Adaptador adap = new Adaptador(NotasPropias.this, arrayNotas);
+        lvNotas.setAdapter(adap);
     }
-    public String getNota(){
-        String type = "",texto ="";
+
+    /**
+     * Obtiene el texto
+     * @return el autor de la nota seleccionada
+     */
+    public String getAutor(){
+        String texto ="";
 
         db = new BDadap(this,database);
-        Cursor c = db.getNota(getTitle);
+        Cursor c = db.getNota(getContenido);
         if (c.moveToFirst()) {
             do {
                 texto = c.getString(1);
@@ -132,17 +157,20 @@ public class NotasPropias extends AppCompatActivity {
         return texto;
     }
 
+    /**
+     * Obtiene la urgencia de la nota
+     * @return la urgencia de la nota seleccionada
+     */
     public String getUrgencia(){
-        String type = "",texto ="";
+        String texto ="";
 
         db = new BDadap(this,database);
-        Cursor c = db.getNota(getTitle);
+        Cursor c = db.getNota(getContenido);
                 if(c.moveToFirst()){
                 do{
             texto = c.getString(3);
 
          }while(c.moveToNext());
-
 }
         return texto;
     }

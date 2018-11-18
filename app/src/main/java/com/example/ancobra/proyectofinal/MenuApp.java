@@ -32,6 +32,8 @@ public class MenuApp  extends AppCompatActivity {
 
             prefs = this.getSharedPreferences("MisPreferencias", Context.MODE_PRIVATE);
             editor = prefs.edit();
+
+            //SI EL MODO ES OFFLINE OCULTA EL BOTON DE NOTAS EN RED Y RESITUA LOS BOTONES
             if (prefs.getBoolean("off",true)){
                 btnPen.setVisibility(View.GONE);
                 btnNuevo.setY(200);

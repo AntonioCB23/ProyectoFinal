@@ -36,24 +36,28 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class AddNota extends AppCompatActivity implements Response.Listener<JSONObject>,Response.ErrorListener{
-    String type;
-    EditText AUTOR, TEXTO;
-    CheckBox URGE;
-    private static final int SALIR = Menu.FIRST;
-    BDadap DB;
-    ProgressDialog progreso;
+    EditText AUTOR, TEXTO; //EDITTEXT DEL ACTIVITY
+    CheckBox URGE; //CHECKBOX DEL ACTIVITY
+    private static final int SALIR = Menu.FIRST; //OPCION DE MENU
+    BDadap DB; //ADAPTADOR DE LA BD
+    ProgressDialog progreso; //VENTANA DE CARGA
     SharedPreferences prefs; //PREFERENCIAS
     SharedPreferences.Editor editor; //EDITOR DE PREFENCIASS
-    String database, ip;
-    RequestQueue request;
-    JsonObjectRequest jsonObjectRequest;
+    String database, ip; //STRINGS AUXILIARES
+    RequestQueue request; //REQUEST UTILIZADO PARA REALIZAR LA CONSULTA A LA BD
+    JsonObjectRequest jsonObjectRequest; //JSON UTILIZADO EN LA CONSULTA
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.addnota);
+
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().setIcon(R.drawable.icon);
         getSupportActionBar().setTitle("WeUnite > Añadir nota");
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5641cb")));
+
+        //INICIALIZACION DE VARIABLES Y OBTENCION DE DATOS VARIOS
         prefs = this.getSharedPreferences("MisPreferencias", Context.MODE_PRIVATE);
         editor = prefs.edit();
         if(prefs.getBoolean("off",true)){
@@ -66,17 +70,15 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
         AUTOR = findViewById(R.id.editText_Autor);
          TEXTO = findViewById(R.id.editText_Texto);
          URGE = findViewById(R.id.checkBox);
-
-        Bundle bundle = this.getIntent().getExtras();
-        type = bundle.getString("type");
-
         request = Volley.newRequestQueue(this);
-        
+
+        //CLICK DEL BOTON
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //SI LA BASE DE DATOS SOBRE LA QUE ACTUAMOS HARA UNA COSA U OTRA, VA RELACIONADO AL MODO ONLINE Y OFFLINE
                 if(database.equals("Notas")){
-                    cargarWebService();
+                    enviaDatos();
                     addNota();
                 }else{
                     addNota();
@@ -86,11 +88,16 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
         });
     }
 
-    private void cargarWebService() {
+    /**
+     * Metodo que gestiona el añadido de la nota a la bd externa
+     */
+    private void enviaDatos() {
         progreso = new ProgressDialog(this);
         progreso.setMessage("Enviando datos.... Si tarda demasiado debería revisar si la ip introducida es correcta");
         progreso.show();
         String url="";
+
+        //COMPRUEBA SI EL CHECK DE URGENTE ESTA ACTIVO, ASI REALIZA UNA CONSULTA U OTRA
         if (URGE.isChecked()){
              url = "http://"+ip+"/WebService/enviarDatos.php?autor="+AUTOR.getText().toString()+
                     "&texto="+TEXTO.getText().toString()+"&urgente=S";
@@ -98,12 +105,16 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
             url = "http://"+ip+"/WebService/enviarDatos.php?autor="+AUTOR.getText().toString()+
                     "&texto="+TEXTO.getText().toString()+"&urgente=N";
         }
-        url = url.replace(" ","%20");
-        Log.i("Response: ", ""+url);
+        url = url.replace(" ","%20");//REMPLAZA LOS ESPACIOS PORQUE SINO DARIA ERROR
         jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,url,null,this,this);
         request.add(jsonObjectRequest);
     }
 
+    /**
+     * Añade las opciones de menu en la parte superior
+     * @param menu menu a gestionar
+     * @return true
+     */
     @Override
     public boolean onCreateOptionsMenu (Menu menu){
         getMenuInflater().inflate(R.menu.menu,menu);
@@ -111,6 +122,12 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
         menu.add(1,SALIR,0,R.string.menu_salir);
         return  true;
     }
+
+    /**
+     * Gestiona la pulsacion del menu
+     * @param item opcion seleciona
+     * @return la opcion correcta
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
@@ -128,6 +145,7 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
                     return super.onOptionsItemSelected(item);
         }
     }
+
 
     private void addNota(){
         DB = new BDadap(this,database);
@@ -167,11 +185,19 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
         startActivity(intent);
     }
 
+    /**
+     * Si la conexion es erronea entra aqui
+     * @param error error asociado
+     */
     @Override
     public void onErrorResponse(VolleyError error) {
         progreso.hide();
     }
 
+    /**
+     * Si la conexion es correcta entra aqui
+     * @param response la consulta a la bd
+     */
     @Override
     public void onResponse(JSONObject response) {
         progreso.hide();
@@ -179,6 +205,9 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
         finish();
     }
 
+    /**
+     * limpia los datos
+     */
     public void limpia(){
         AUTOR.setText("");
         TEXTO.setText("");

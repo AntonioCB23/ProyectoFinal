@@ -12,9 +12,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-
-
-
+//ADAPTADOR PERSONALIZADO
 public class Adaptador extends BaseAdapter {
     ArrayList<Nota> Notas;
     LayoutInflater inflador;
@@ -23,20 +21,17 @@ public class Adaptador extends BaseAdapter {
         this.inflador = LayoutInflater.from(contexto);
         this.Notas = lista;
     }
+
     @Override
     public int getCount() {
         return Notas.size();
     }
-    // Devuelve el elemento asociado con la posición en el ListView
     @Override
     public Object getItem(int position) {
         return Notas.get(position);
     }
     @Override
-    public long getItemId(int position) {
-
-        return position;
-    }
+    public long getItemId(int position) { return position; }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -50,6 +45,8 @@ public class Adaptador extends BaseAdapter {
         } else contenedor=(ViewHolder)convertView.getTag();
         Nota nota = Notas.get(position);
         contenedor.txtAutor.setText(nota.getAutor());
+
+        //SI EL TEXTO ES DEMASIADO LARGO ACORTA EL TEXTO PARA QUE EL LISTVIEW MANTENGA LAS PROPORCIONES
         if(nota.getTexto().length()>50){
             contenedor.txtDescripcion.setText(nota.getTexto().substring(0,50)+"...");
         }else{

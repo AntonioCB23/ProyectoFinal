@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -48,16 +49,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NotasPen extends AppCompatActivity implements Response.Listener<JSONObject>,Response.ErrorListener{
+    //OPCIONES DE MENU
     private static final int ADD = Menu.FIRST;
     private static final int EXIST = Menu.FIRST +2;
-    ListView lvNotas;
-    ProgressDialog progreso;
-    RequestQueue request;
-    JsonObjectRequest jsonObjectRequest;
-    ArrayList<Nota> arrayNotas;
+
+    public static final int MY_DEFAULT_TIMEOUT = 5000;//TIMEOUT DE LA CONSULTA
+    ListView lvNotas; //LISTVIEW
+    ProgressDialog progreso; //VENTANA DE CARGA
+    RequestQueue request; //REQUEST PARA GESTIONAR LA CONSULA
+    JsonObjectRequest jsonObjectRequest; // jsonObjectRequest PARA GESTIONAR LA CONSULTA A LA BD
+    ArrayList<Nota> arrayNotas; //ARRAY DE LA CLASE NOTA DONDE SE GUARDARAN LAS NOTAS
     SharedPreferences prefs; //PREFERENCIAS
     SharedPreferences.Editor editor; //EDITOR DE PREFENCIAS
-    String ip;
+    String ip; //IP QUE SE UTILIZA
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,17 +74,16 @@ public class NotasPen extends AppCompatActivity implements Response.Listener<JSO
         getSupportActionBar().setTitle("WeUnite > Notas pendientes");
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5641cb")));
 
+        //INICIALIZACION DE VARIABLES Y CARGA DE DATOS
         lvNotas = findViewById(R.id.lvNotas);
-
         prefs = this.getSharedPreferences("MisPreferencias", Context.MODE_PRIVATE);
         editor = prefs.edit();
         ip = prefs.getString("ip","");
-        Log.i("Response: ", ""+ip);
-arrayNotas = new ArrayList<>();
-
+        arrayNotas = new ArrayList<>();
         request = Volley.newRequestQueue(this);
-        cargarWebService();
+        cargaDatos();
 
+        //CLICK DEL ELEMENTO DEL LISTVIEW
         lvNotas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -91,38 +96,41 @@ arrayNotas = new ArrayList<>();
         });
     }
 
-    private void cargarWebService() {
+    /**
+     * Carga los datos que existen en la tabla externa
+     */
+    private void cargaDatos() {
         progreso = new ProgressDialog(this);
         progreso.setMessage("Consultando.. Si tarda demasiado debería comprobar que la dirección ip sea correcta");
         progreso.show();
         String url = "http://"+ip+"/WebService/conexion.php";
-
         jsonObjectRequest = new JsonObjectRequest(url,null,this,this);
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
+                MY_DEFAULT_TIMEOUT,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         request.add(jsonObjectRequest);
 
     }
 
     @Override
     public void onErrorResponse(VolleyError error) {
-
     }
 
     @Override
     public void onResponse(JSONObject response) {
-        progreso.hide();
-        Log.i("Response: ", ""+response);
-
+        progreso.hide(); //OCULTA LA VENTANA DE CARGA PUESTO QUE SE HA CARGADO LOS DATOS CORRECTAMENTE
         Nota nota;
-
         try {
-            JSONArray json = response.getJSONArray("notas");
+            JSONArray json = response.getJSONArray("notas");//OBTENEMOS EL JSONARRAY
             for (int i = 0; i < json.length() ; i++) {
                 JSONObject jsonObject = null;
                 jsonObject = json.getJSONObject(i);
                 nota = new Nota(jsonObject.optString("Autor"),jsonObject.optString("Contenido"),jsonObject.optString("Urgente"));
-                arrayNotas.add(nota);
+                arrayNotas.add(nota);//AÑADIMOS LA NOTA PREVIAMENTE INICIALIZADA AL ARRAY
             }
 
+            //AÑADIMOS AL ADAPTADOR PERSONALIZADO EL ARRAY DE NOTAS Y SE LO ASIGNAMOS AL LISTVIEW
             Adaptador adap = new Adaptador(NotasPen.this, arrayNotas);
             lvNotas.setAdapter(adap);
         } catch (JSONException e) {
@@ -131,7 +139,11 @@ arrayNotas = new ArrayList<>();
 
     }
 
-
+    /**
+     * Añade las opciones de menu en la parte superior
+     * @param menu menu a gestionar
+     * @return true
+     */
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
@@ -140,6 +152,12 @@ arrayNotas = new ArrayList<>();
         super.onCreateOptionsMenu(menu);
         return true;
     }
+
+    /**
+     * Gestiona la pulsacion del menu
+     * @param item opcion seleciona
+     * @return la opcion correcta
+     */
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
         switch (id){
