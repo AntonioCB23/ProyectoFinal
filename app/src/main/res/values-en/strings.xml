@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WeUnite</string>
+    <string name="add_nota">Add note</string>
+    <string name="ver_nota">Visualize note</string>
+    <string name="menu_borrar">Delete note</string>
+    <string name="menu_borrar_todas">Delete all</string>
+    <string name="menu_salir">Exit</string>
+    <string name="menu_crear">Add note</string>
+    <string name="menu_editar">Edit note</string>
+    <string name="offline">Offline mode</string>
+    <string name="acceder">Enter</string>
+    <string name="ip_error">Invalid ip, please insert with format (###.###.#.##) or without \".\"</string>
+    <string name="consulta_progress">Loading, if it is delayed, please check the ip</string>
+    <string name="menu_notaspen">Pending notes</string>
+    <string name="menu_notaspropias">My notes</string>
+    <string name="urgente">Urgent</string>
+    <string name="autor">Author:</string>
+</resources>
