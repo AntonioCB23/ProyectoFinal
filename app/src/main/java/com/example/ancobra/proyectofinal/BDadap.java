@@ -72,7 +72,18 @@ public class BDadap extends SQLiteOpenHelper {
      * Obtiene todos los datos de la tabla
      * @return el cursor sobre el que obtiene los datos
      */
-    public Cursor getTodasNotas(){
+    public Cursor getTodasNotas(String condition){
+        String col[] ={TABLE_ID,AUTOR,TEXTO,URGE};
+        String[] args = new String[] {condition};
+        Cursor c = this.getReadableDatabase().query(TABLE,col,AUTOR+"=?",args,null,null,TABLE_ID+" DESC",null);
+        return c;
+    }
+
+    /**
+     * Obtiene todos los datos de la tabla "offline"
+     * @return el cursor sobre el que obtiene los datos
+     */
+    public Cursor getTodasNotasOff(){
         String col[] ={TABLE_ID,AUTOR,TEXTO,URGE};
         Cursor c = this.getReadableDatabase().query(TABLE,col,null,null,null,null,TABLE_ID+" DESC");
         return c;

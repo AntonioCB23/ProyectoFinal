@@ -17,4 +17,7 @@
     <string name="menu_notaspropias">Notas propias</string>
     <string name="urgente">Urgente</string>
     <string name="autor">Autor:</string>
+    <string name="menu_act">Actualizar</string>
+    <string name="menu_cambia">Cambia modo</string>
+    <string name="menu_subir">Subir al servidor</string>
 </resources>

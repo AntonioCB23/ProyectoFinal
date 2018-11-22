@@ -24,6 +24,7 @@ import java.util.List;
 public class NotasPropias extends AppCompatActivity {
     //OPCIONES DE MENU
     private static final int ADD = Menu.FIRST;
+    private static final int CAMBIAR = Menu.FIRST +1 ;
     private static final int EXIST = Menu.FIRST +2;
 
     ListView lvNotas;
@@ -43,7 +44,7 @@ public class NotasPropias extends AppCompatActivity {
         getSupportActionBar().setTitle("WeUnite > Notas propias");
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5641cb")));
 
-        textLista = findViewById(R.id.textView_lista);
+        textLista = findViewById(R.id.textView_modo);
         lvNotas = findViewById(R.id.listView_Lista);
         arrayNotas = new ArrayList<>();
 
@@ -51,8 +52,12 @@ public class NotasPropias extends AppCompatActivity {
         editor = prefs.edit();
         if(prefs.getBoolean("off",true)){
             database = "notasPersonales";
+            textLista.setText("Notas modo offline");
+            textLista.setX(225);
         }else{
             database = "Notas";
+            textLista.setText("Notas personales subidas al servidor");
+            textLista.setX(175);
         }
         lvNotas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -72,7 +77,8 @@ public class NotasPropias extends AppCompatActivity {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
         menu.add(1,ADD,0,R.string.menu_crear);
-        menu.add(2,EXIST,0,R.string.menu_salir);
+        menu.add(2,CAMBIAR,0,R.string.menu_cambia);
+        menu.add(3,EXIST,0,R.string.menu_salir);
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -87,7 +93,23 @@ public class NotasPropias extends AppCompatActivity {
         switch (id){
             case ADD:
                 actividad("add");
-                return true ;
+                return true;
+            case CAMBIAR:
+                    if(database.equals("Notas")){
+                        editor.putBoolean("offline",true);
+                        database = "notasPersonales";
+                        textLista.setText("Notas modo offline ");
+                        textLista.setX(225);
+            }else{
+                        editor.putBoolean("offline",false);
+                database = "Notas";
+                        textLista.setText("Notas personales subidas al servidor");
+                        textLista.setX(175);
+            }
+                editor.commit();
+            arrayNotas.clear();
+            mostrarNotas();
+                return true;
             case EXIST:
                 finish();
                 return true ;
@@ -121,7 +143,13 @@ public class NotasPropias extends AppCompatActivity {
      */
     private void mostrarNotas(){
             db = new BDadap(this,database);
-        Cursor c = db.getTodasNotas();
+        Cursor c;
+        if(database.equals("Notas")){
+            c = db.getTodasNotas(prefs.getString("autor",""));
+        }else{
+            c = db.getTodasNotasOff();
+        }
+
         String texto = "";
 
         if (c.moveToFirst()== false ){

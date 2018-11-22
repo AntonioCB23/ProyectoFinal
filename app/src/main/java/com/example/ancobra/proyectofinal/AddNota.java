@@ -21,6 +21,7 @@ import android.webkit.CookieSyncManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -36,7 +37,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class AddNota extends AppCompatActivity implements Response.Listener<JSONObject>,Response.ErrorListener{
-    EditText AUTOR, TEXTO; //EDITTEXT DEL ACTIVITY
+    EditText  TEXTO; //EDITTEXT DEL ACTIVITY
+    TextView AUTOR;
     CheckBox URGE; //CHECKBOX DEL ACTIVITY
     private static final int SALIR = Menu.FIRST; //OPCION DE MENU
     BDadap DB; //ADAPTADOR DE LA BD
@@ -67,11 +69,12 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
         }
         ip = prefs.getString("ip","");
         Button add = findViewById(R.id.button_Add);
-        AUTOR = findViewById(R.id.editText_Autor);
+        AUTOR = findViewById(R.id.tvAutor);
          TEXTO = findViewById(R.id.editText_Texto);
          URGE = findViewById(R.id.checkBox);
         request = Volley.newRequestQueue(this);
 
+        AUTOR.setText("Autor: "+prefs.getString("autor",""));
         //CLICK DEL BOTON
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,10 +102,10 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
 
         //COMPRUEBA SI EL CHECK DE URGENTE ESTA ACTIVO, ASI REALIZA UNA CONSULTA U OTRA
         if (URGE.isChecked()){
-             url = "http://"+ip+"/WebService/enviarDatos.php?autor="+AUTOR.getText().toString()+
+             url = "http://"+ip+"/WebService/enviarDatos.php?autor="+prefs.getString("autor","").toString()+
                     "&texto="+TEXTO.getText().toString()+"&urgente=S";
         }else{
-            url = "http://"+ip+"/WebService/enviarDatos.php?autor="+AUTOR.getText().toString()+
+            url = "http://"+ip+"/WebService/enviarDatos.php?autor="+prefs.getString("autor","").toString()+
                     "&texto="+TEXTO.getText().toString()+"&urgente=N";
         }
         url = url.replace(" ","%20");//REMPLAZA LOS ESPACIOS PORQUE SINO DARIA ERROR

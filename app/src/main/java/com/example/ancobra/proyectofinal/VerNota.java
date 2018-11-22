@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -37,14 +38,16 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
     TextView AUTOR, TEXTO;
     CheckBox URGE;
     BDadap db;
-
+    boolean offline;
     ProgressDialog progreso;
     SharedPreferences prefs; //PREFERENCIAS
     SharedPreferences.Editor editor; //EDITOR DE PREFENCIAS
     String database, ip;
     RequestQueue request;
     JsonObjectRequest jsonObjectRequest;
-    private static final int DELETE = Menu.FIRST;
+    private static final int DELETE = Menu.FIRST + 1;
+    private static final int ACTUALIZAR = Menu.FIRST;
+    private static final int SUBIR = Menu.FIRST+2;
     @Override
     protected void onCreate(Bundle savedIntanceState){
         super.onCreate(savedIntanceState);
@@ -58,6 +61,7 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
         //INICIALIZACION DE VARIABLES Y OBTENCION DE DATOS DE PREFERENCIAS
         prefs = this.getSharedPreferences("MisPreferencias", Context.MODE_PRIVATE);
         editor = prefs.edit();
+        offline = prefs.getBoolean("off",true);
         if(prefs.getBoolean("off",true)){
             database = "notasPersonales";
         }else{
@@ -81,6 +85,7 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
             URGE.setChecked(false);
         }
         URGE.setEnabled(false);
+
     }
 
     /**
@@ -91,7 +96,12 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
-        menu.add(1,DELETE,0,R.string.menu_borrar);
+        menu.add(1,ACTUALIZAR,0,R.string.menu_act);
+        menu.add(2,DELETE,0,R.string.menu_borrar);
+        if(offline){
+            menu.add(3,SUBIR,0,R.string.menu_subir);
+        }
+
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -104,6 +114,8 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
         switch (id){
+            case ACTUALIZAR:
+                return true;
             case DELETE:
                 //MENSAJE DE CONFIRMACION
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -128,6 +140,29 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
 
                 builder.show();
                 return true ;
+            case SUBIR:
+                //MENSAJE DE CONFIRMACION
+                AlertDialog.Builder builderSubir = new AlertDialog.Builder(this);
+                builderSubir.setTitle("Mensaje de confirmación");
+                builderSubir.setMessage("¿Subir la nota al servidor compartido?");
+                builderSubir.setCancelable(false);
+                builderSubir.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                            enviaDatos();
+                        Toast.makeText(getApplicationContext(), "Se subirán los datos", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                builderSubir.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(getApplicationContext(), "Cancelada la operación", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                builderSubir.show();
+                    return true;
             default:
                 return onOptionsItemSelected(item);
         }
@@ -151,14 +186,65 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
         progreso.setMessage("Borrando datos....");
         progreso.show();
         String url="";
-        url = "http://"+ip+"/WebService/borrarDatos.php?autor="+AUTOR.getText().toString()+
-                "&texto="+TEXTO.getText().toString()+"&urgente=S";
+        if(URGE.isChecked()){
+            url = "http://"+ip+"/WebService/borrarDatos.php?autor="+AUTOR.getText().toString()+
+                    "&texto="+TEXTO.getText().toString()+"&urgente=S";
+        }else{
+            url = "http://"+ip+"/WebService/borrarDatos.php?autor="+AUTOR.getText().toString()+
+                    "&texto="+TEXTO.getText().toString()+"&urgente=N";
+        }
+
         url = url.replace(" ","%20");
         Log.i("Response: ", ""+url);
         jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,url,null,this,this);
         request.add(jsonObjectRequest);
     }
 
+    private void enviaDatos() {
+        progreso = new ProgressDialog(this);
+        progreso.setMessage("Enviando datos.... Si tarda demasiado debería revisar si la ip introducida es correcta");
+        progreso.show();
+        String url="";
+
+        //COMPRUEBA SI EL CHECK DE URGENTE ESTA ACTIVO, ASI REALIZA UNA CONSULTA U OTRA
+        if (URGE.isChecked()){
+            url = "http://"+ip+"/WebService/enviarDatos.php?autor="+AUTOR.getText().toString()+
+                    "&texto="+TEXTO.getText().toString()+"&urgente=S";
+        }else{
+            url = "http://"+ip+"/WebService/enviarDatos.php?autor="+AUTOR.getText().toString()+
+                    "&texto="+TEXTO.getText().toString()+"&urgente=N";
+        }
+        url = url.replace(" ","%20");//REMPLAZA LOS ESPACIOS PORQUE SINO DARIA ERROR
+        url = url.replace("\n","%20");//REMPLAZA LOS ESPACIOS PORQUE SINO DARIA ERROR
+        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,url,null,this,this);
+        request.add(jsonObjectRequest);
+    }
+
+    private void addNota(){
+        BDadap DB = new BDadap(this,database);
+        String autor, texto;
+        Boolean urge;
+        autor = AUTOR.getText().toString().trim();
+        texto = TEXTO.getText().toString().trim();
+        urge = URGE.isChecked();
+
+        if (!autor.equals("") ||!texto.equals("")){
+            Cursor c = DB.getNota(autor);
+            String getTitle="";
+            if(c.moveToFirst()){
+                do{
+                    getTitle = c.getString(1);
+                }while (c.moveToNext());
+            }
+            if(urge){
+                DB.addNote(autor,texto,"S");
+            }else{
+                DB.addNote(autor,texto,"N");
+            }
+        }else{
+            Toast.makeText(this,"Introduzca un autor y un texto", Toast.LENGTH_SHORT).show();
+        }
+    }
     /**
      * Si la sentencia es erronea entra aqui
      * @param error error que da el metodo

@@ -51,6 +51,7 @@ import java.util.List;
 public class NotasPen extends AppCompatActivity implements Response.Listener<JSONObject>,Response.ErrorListener{
     //OPCIONES DE MENU
     private static final int ADD = Menu.FIRST;
+    private static final int REFRESH = Menu.FIRST+1;
     private static final int EXIST = Menu.FIRST +2;
 
     public static final int MY_DEFAULT_TIMEOUT = 5000;//TIMEOUT DE LA CONSULTA
@@ -148,7 +149,8 @@ public class NotasPen extends AppCompatActivity implements Response.Listener<JSO
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
         menu.add(1,ADD,0,R.string.menu_crear);
-        menu.add(2,EXIST,0,R.string.menu_salir);
+        menu.add(2,REFRESH,0,R.string.menu_act);
+        menu.add(3,EXIST,0,R.string.menu_salir);
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -166,6 +168,10 @@ public class NotasPen extends AppCompatActivity implements Response.Listener<JSO
                 intent.putExtra("type","addExterno");
                 startActivity(intent);
                 return true ;
+            case REFRESH:
+                arrayNotas.clear();
+                cargaDatos();
+                return true;
             case EXIST:
                 finish();
                 return true ;

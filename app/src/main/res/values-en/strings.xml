@@ -16,4 +16,7 @@
     <string name="menu_notaspropias">My notes</string>
     <string name="urgente">Urgent</string>
     <string name="autor">Author:</string>
+    <string name="menu_act">Refresh</string>
+    <string name="menu_cambia">Change mode</string>
+    <string name="menu_subir">Upload to server</string>
 </resources>
