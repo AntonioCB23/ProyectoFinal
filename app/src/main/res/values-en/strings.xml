@@ -19,4 +19,27 @@
     <string name="menu_act">Refresh</string>
     <string name="menu_cambia">Change mode</string>
     <string name="menu_subir">Upload to server</string>
+    <string name="alert_entendido">Got it</string>
+    <string name="alert_si">Yes</string>
+    <string name="inserta_progress">Uploading...</string>
+    <string name="comprueba_conex">Loading...</string>
+    <string name="menu">Menu</string>
+    <string name="notasPropias">My Notes</string>
+    <string name="notas_offline">Offline mode notes</string>
+    <string name="notas_person">My uploaded notes</string>
+    <string name="noNotas">No notes</string>
+    <string name="regUser">Register User</string>
+    <string name="pwdError">The passwords didn\'t match</string>
+    <string name="campos">Please, enter all the fields</string>
+    <string name="alert_confirm">Upload the note to the server?</string>
+    <string name="alert_quest">Confirm message</string>
+    <string name="datos_correcto">Note uploaded!</string>
+    <string name="datos_cancel">Operation cancelled by user</string>
+    <string name="borrarNota">Note will be deleted, are you sure?</string>
+    <string name="borrarConfirm">Note deleted</string>
+    <string name="login">Login</string>
+    <string name="cargando">Loading...</string>
+    <string name="conexion_error">Connection error, check your ip and the connection its up</string>
+    <string name="notas_pen">Pending notes</string>
+    <string name="adv_notas">The uploaded notes will be added to the server, to save locally use the offline mode</string>
 </resources>

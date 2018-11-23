@@ -32,6 +32,9 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
 
+/**
+ * Clase VerNota que gestiona la visualización de la nota seleccionada
+ */
 public class VerNota extends AppCompatActivity implements Response.Listener<JSONObject>,Response.ErrorListener{
     String autor, texto;
     Boolean urgente;
@@ -46,7 +49,6 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
     RequestQueue request;
     JsonObjectRequest jsonObjectRequest;
     private static final int DELETE = Menu.FIRST + 1;
-    private static final int ACTUALIZAR = Menu.FIRST;
     private static final int SUBIR = Menu.FIRST+2;
     @Override
     protected void onCreate(Bundle savedIntanceState){
@@ -55,7 +57,7 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
 
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().setIcon(R.drawable.icon);
-        getSupportActionBar().setTitle("WeUnite > Visualizar nota");
+        getSupportActionBar().setTitle("WeUnite > "+getString(R.string.ver_nota));
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5641cb")));
 
         //INICIALIZACION DE VARIABLES Y OBTENCION DE DATOS DE PREFERENCIAS
@@ -93,12 +95,12 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
      * @param menu menu a gestionar
      * @return true
      */
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
-        menu.add(1,ACTUALIZAR,0,R.string.menu_act);
         menu.add(2,DELETE,0,R.string.menu_borrar);
-        if(offline){
+        if(!prefs.getBoolean("off",true)){ //Si estamos en modo offline no tiene sentido subir la nota al servidor, puesto que no hay conexión ninguna
             menu.add(3,SUBIR,0,R.string.menu_subir);
         }
 
@@ -111,30 +113,29 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
      * @param item opcion seleciona
      * @return la opcion correcta
      */
+    @Override
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
         switch (id){
-            case ACTUALIZAR:
-                return true;
             case DELETE:
                 //MENSAJE DE CONFIRMACION
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Mensaje de confirmación");
-                builder.setMessage("A continuación se borrará la nota, ¿estás seguro?");
+                builder.setTitle(""+getString(R.string.alert_confirm));
+                builder.setMessage(""+getString(R.string.borrarNota));
                 builder.setCancelable(false);
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(""+getString(R.string.alert_si), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         borrar();
                         borrarDatos();
-                        Toast.makeText(getApplicationContext(), "Has seleccionado borrar los datos", Toast.LENGTH_SHORT).show();
+                        muestraError(""+getString(R.string.borrarConfirm));
                     }
                 });
 
                 builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(getApplicationContext(), "Cancelada la operación", Toast.LENGTH_SHORT).show();
+                        muestraError(""+getString(R.string.datos_cancel));
                     }
                 });
 
@@ -143,21 +144,22 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
             case SUBIR:
                 //MENSAJE DE CONFIRMACION
                 AlertDialog.Builder builderSubir = new AlertDialog.Builder(this);
-                builderSubir.setTitle("Mensaje de confirmación");
-                builderSubir.setMessage("¿Subir la nota al servidor compartido?");
+                builderSubir.setTitle(""+getString(R.string.alert_confirm));
+                builderSubir.setMessage(""+getString(R.string.alert_quest));
                 builderSubir.setCancelable(false);
-                builderSubir.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                builderSubir.setPositiveButton(""+getString(R.string.alert_si), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        AUTOR.setText(prefs.getString("autor",""));
                             enviaDatos();
-                        Toast.makeText(getApplicationContext(), "Se subirán los datos", Toast.LENGTH_SHORT).show();
+                            muestraError(""+getString(R.string.datos_correcto));
                     }
                 });
 
                 builderSubir.setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(getApplicationContext(), "Cancelada la operación", Toast.LENGTH_SHORT).show();
+                        muestraError(""+R.string.datos_cancel);
                     }
                 });
 
@@ -168,11 +170,14 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
         }
     }
     public void borrar (){
+        Intent itAnterior = getIntent();
+        if(itAnterior.getStringExtra("offline").equals("Normal")){
+            database = "Notas";
+        }else{
+            database = "notasPersonales";
+        }
         db = new BDadap(this,database);
-        db.deleteNote(autor);
-        CookieSyncManager.createInstance(this);
-        CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.removeAllCookie();
+        db.deleteNote(TEXTO.getText().toString());
         Intent intent = new Intent(VerNota.this,MenuApp.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
@@ -202,7 +207,7 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
 
     private void enviaDatos() {
         progreso = new ProgressDialog(this);
-        progreso.setMessage("Enviando datos.... Si tarda demasiado debería revisar si la ip introducida es correcta");
+        progreso.setMessage(""+R.string.inserta_progress);
         progreso.show();
         String url="";
 
@@ -219,39 +224,13 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
         jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,url,null,this,this);
         request.add(jsonObjectRequest);
     }
-
-    private void addNota(){
-        BDadap DB = new BDadap(this,database);
-        String autor, texto;
-        Boolean urge;
-        autor = AUTOR.getText().toString().trim();
-        texto = TEXTO.getText().toString().trim();
-        urge = URGE.isChecked();
-
-        if (!autor.equals("") ||!texto.equals("")){
-            Cursor c = DB.getNota(autor);
-            String getTitle="";
-            if(c.moveToFirst()){
-                do{
-                    getTitle = c.getString(1);
-                }while (c.moveToNext());
-            }
-            if(urge){
-                DB.addNote(autor,texto,"S");
-            }else{
-                DB.addNote(autor,texto,"N");
-            }
-        }else{
-            Toast.makeText(this,"Introduzca un autor y un texto", Toast.LENGTH_SHORT).show();
-        }
-    }
     /**
      * Si la sentencia es erronea entra aqui
      * @param error error que da el metodo
      */
     @Override
     public void onErrorResponse(VolleyError error) {
-        progreso.hide();
+        muestraError(error.toString());
     }
 
     /**
@@ -261,5 +240,21 @@ public class VerNota extends AppCompatActivity implements Response.Listener<JSON
     @Override
     public void onResponse(JSONObject response) {
         progreso.hide();
+    }
+
+    /**
+     * Funcion que unicamente saca un AlertDialog de 1 boton que tendra el texto que queramos
+     * @param textoError texto a mostrar en el cuadro de dialogo
+     */
+    private void muestraError(String textoError){
+        AlertDialog.Builder builder = new AlertDialog.Builder(VerNota.this);
+        builder.setTitle("Error");
+        builder.setMessage(textoError);
+        builder.setCancelable(false);
+        builder.setPositiveButton(""+getString(R.string.alert_entendido), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) { }
+        });
+        builder.show();
     }
 }

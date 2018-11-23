@@ -48,6 +48,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Clase que gestiona la pantalla de notas pendientes (las subidas al servidor)
+ */
 public class NotasPen extends AppCompatActivity implements Response.Listener<JSONObject>,Response.ErrorListener{
     //OPCIONES DE MENU
     private static final int ADD = Menu.FIRST;
@@ -72,7 +75,7 @@ public class NotasPen extends AppCompatActivity implements Response.Listener<JSO
 
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().setIcon(R.drawable.icon);
-        getSupportActionBar().setTitle("WeUnite > Notas pendientes");
+        getSupportActionBar().setTitle("WeUnite > "+getString(R.string.notas_pen));
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5641cb")));
 
         //INICIALIZACION DE VARIABLES Y CARGA DE DATOS
@@ -92,6 +95,7 @@ public class NotasPen extends AppCompatActivity implements Response.Listener<JSO
                 intent.putExtra("autor",arrayNotas.get(i).getAutor());
                 intent.putExtra("texto",arrayNotas.get(i).getTexto());
                 intent.putExtra("urge",arrayNotas.get(i).getUrgente());
+                intent.putExtra("offline","Normal");
                 startActivity(intent);
             }
         });
@@ -102,7 +106,7 @@ public class NotasPen extends AppCompatActivity implements Response.Listener<JSO
      */
     private void cargaDatos() {
         progreso = new ProgressDialog(this);
-        progreso.setMessage("Consultando.. Si tarda demasiado debería comprobar que la dirección ip sea correcta");
+        progreso.setMessage(""+getString(R.string.consulta_progress));
         progreso.show();
         String url = "http://"+ip+"/WebService/conexion.php";
         jsonObjectRequest = new JsonObjectRequest(url,null,this,this);
@@ -116,6 +120,8 @@ public class NotasPen extends AppCompatActivity implements Response.Listener<JSO
 
     @Override
     public void onErrorResponse(VolleyError error) {
+        muestraError(""+getString(R.string.noNotas));
+        progreso.hide();
     }
 
     @Override
@@ -178,5 +184,21 @@ public class NotasPen extends AppCompatActivity implements Response.Listener<JSO
             default:
                 return onOptionsItemSelected(item);
         }
+    }
+
+    /**
+     * Funcion que unicamente saca un AlertDialog de 1 boton que tendra el texto que queramos
+     * @param textoError texto a mostrar en el cuadro de dialogo
+     */
+    private void muestraError(String textoError){
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(NotasPen.this);
+        builder.setTitle("Error");
+        builder.setMessage(textoError);
+        builder.setCancelable(false);
+        builder.setPositiveButton(""+getString(R.string.alert_entendido), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) { }
+        });
+        builder.show();
     }
 }

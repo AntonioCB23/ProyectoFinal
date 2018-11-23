@@ -29,6 +29,9 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 
+/**
+ * Clase MainActivity que muestra la introduccion de la ip y la principal de la aplicacion
+ */
 public class MainActivity extends AppCompatActivity  implements Response.Listener<JSONObject>,Response.ErrorListener{
 
     EditText txtIp; //EDTITEXT DE IP
@@ -49,13 +52,11 @@ public class MainActivity extends AppCompatActivity  implements Response.Listene
         getSupportActionBar().setIcon(R.drawable.icon); //PONE EL ICONO EN LA PARTE SUPERIOR IZQUIERDA
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#000000"))); //COLOREA LA BARRA SUPERIOR DEL COLOR DESEADO
 
-
-
+        //INICIALIZACION DE VARIABLES
         request = Volley.newRequestQueue(this);
-
         comprob=true;
         valida=false;
-        btn = (Button) findViewById(R.id.btnAcceder);
+        btn = findViewById(R.id.btnAcceder);
         btnOff = findViewById(R.id.btnOffline);
         txtIp = findViewById(R.id.txtIp);
 
@@ -75,17 +76,7 @@ public class MainActivity extends AppCompatActivity  implements Response.Listene
                 txtIp.setText(buffer.toString());
                     cargaDatos();
             }else{
-                //VENTANA DE ERROR
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Error");
-                builder.setMessage("Ip no válida, introduzca la ip en formato ###.###.#.## o sin puntos");
-                builder.setCancelable(false);
-                builder.setPositiveButton("Entendido", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-                builder.show();
+                muestraError(""+getString(R.string.ip_error));
             }
 
             }
@@ -97,6 +88,7 @@ public class MainActivity extends AppCompatActivity  implements Response.Listene
             public void onClick(View view) {
                 editor.putBoolean("off",true);
                 editor.commit();
+                Log.i("Response: ","Pref: "+prefs.getBoolean("off",true));
                 Intent intent= new Intent(MainActivity.this, MenuApp.class);
                 startActivity(intent);
             }
@@ -158,14 +150,20 @@ public class MainActivity extends AppCompatActivity  implements Response.Listene
         return b;
     }
 
+    /**
+     * Si el response obtenido no es valido entra aqui
+     * @param error mensaje de error generado en el response
+     */
     @Override
     public void onErrorResponse(VolleyError error) {
         progreso.hide();
+
+        //EN ESTE CASO NO SE USA muestraError() PUESTO QUE SE NECESITA PONER LA BOOLEANA VALIDA A FALSE EN EL CLICK
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Error");
-        builder.setMessage("Error en la conexión, compruebe su ip y/o conexión");
+        builder.setMessage(""+getString(R.string.conexion_error));
         builder.setCancelable(false);
-        builder.setPositiveButton("Entendido", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(""+getString(R.string.alert_entendido), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 valida = false;
@@ -174,16 +172,16 @@ public class MainActivity extends AppCompatActivity  implements Response.Listene
         builder.show();
     }
 
+    /**
+     * Si el response obtenido es valido entra aqui
+     * @param response JsonObject obtenido
+     */
     @Override
     public void onResponse(JSONObject response) {
         progreso.hide();
         valida = true;
         Log.i("Response:","Entra");
         if(!prefs.getBoolean("introducir",false)){
-            if(valida){
-                //Intent it= new Intent(MainActivity.this, Login.class);
-                //startActivity(it);
-            }
             if(ipPuntos(txtIp.getText().toString())){
                 editor.putBoolean("off",false);//SITUA SI LA APP SE ACCIONA EN MODO OFFLINE
                 editor.putString("ip", txtIp.getText().toString()); //GUARDA LA IP INTRODUCIDA PARA LA PROXIMA VEZ QUE SE ACCIONE LA APP
@@ -200,31 +198,17 @@ public class MainActivity extends AppCompatActivity  implements Response.Listene
 
             }else{
                 //VENTANA DE ERROR
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Error");
-                builder.setMessage("Ip no válida, introduzca la ip en formato ###.###.#.## o sin puntos");
-                builder.setCancelable(false);
-                builder.setPositiveButton("Entendido", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-                builder.show();
+               muestraError(""+getString(R.string.ip_error));
             }
-
-        }else{
-            Intent intent= new Intent(MainActivity.this, VerNota.class);
-            Bundle bundle = getIntent().getExtras();
-            //Bundle bundle = getIntent().getExtras();
-            intent.putExtra("autor",bundle.getString("autor"));
-            intent.putExtra("texto",bundle.getString("texto"));
-            intent.putExtra("urge",bundle.getString("urge"));
-            startActivity(intent);
         }
     }
+
+    /**
+     * Funcion cargaDatos que comprueba si existe conexion a la bd externa
+     */
     private void cargaDatos() {
         progreso = new ProgressDialog(this);
-        progreso.setMessage("Comprobando la conexión");
+        progreso.setMessage(""+getString(R.string.comprueba_conex));
         progreso.show();
         String url = "http://"+txtIp.getText().toString().trim()+"/WebService/comprueba.php";
         jsonObjectRequest = new JsonObjectRequest(url,null,this,this);
@@ -234,5 +218,20 @@ public class MainActivity extends AppCompatActivity  implements Response.Listene
                 0));
         request.add(jsonObjectRequest);
 
+    }
+    /**
+     * Funcion que unicamente saca un AlertDialog de 1 boton que tendra el texto que queramos
+     * @param textoError texto a mostrar en el cuadro de dialogo
+     */
+    private void muestraError(String textoError){
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Error");
+        builder.setMessage(textoError);
+        builder.setCancelable(false);
+        builder.setPositiveButton(""+getString(R.string.alert_entendido), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) { }
+        });
+        builder.show();
     }
 }

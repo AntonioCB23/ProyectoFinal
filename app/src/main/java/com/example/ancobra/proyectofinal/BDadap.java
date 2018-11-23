@@ -95,6 +95,6 @@ public class BDadap extends SQLiteOpenHelper {
      */
     public void deleteNote(String condition){
         String[]args = {condition};
-        this.getWritableDatabase().delete(TABLE,AUTOR+"=?",args);
+        this.getWritableDatabase().delete(TABLE,TEXTO+"=?",args);
     }
 }

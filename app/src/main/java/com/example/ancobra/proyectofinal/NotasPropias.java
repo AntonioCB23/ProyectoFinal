@@ -1,6 +1,7 @@
 package com.example.ancobra.proyectofinal;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -8,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,6 +23,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Clase NotasPropias que muestra las notas que uno mismo ha creado en el servidor
+ */
 public class NotasPropias extends AppCompatActivity {
     //OPCIONES DE MENU
     private static final int ADD = Menu.FIRST;
@@ -35,13 +40,14 @@ public class NotasPropias extends AppCompatActivity {
     SharedPreferences.Editor editor; //EDITOR DE PREFENCIAS
     String database;
     ArrayList<Nota> arrayNotas;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notaspropias);
 
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().setIcon(R.drawable.icon);
-        getSupportActionBar().setTitle("WeUnite > Notas propias");
+        getSupportActionBar().setTitle("WeUnite > "+getString(R.string.notasPropias));
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5641cb")));
 
         textLista = findViewById(R.id.textView_modo);
@@ -52,12 +58,10 @@ public class NotasPropias extends AppCompatActivity {
         editor = prefs.edit();
         if(prefs.getBoolean("off",true)){
             database = "notasPersonales";
-            textLista.setText("Notas modo offline");
-            textLista.setX(225);
+            textLista.setText(""+getString(R.string.notas_offline));
         }else{
             database = "Notas";
-            textLista.setText("Notas personales subidas al servidor");
-            textLista.setX(175);
+            textLista.setText(""+getString(R.string.notas_person));
         }
         lvNotas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -77,7 +81,9 @@ public class NotasPropias extends AppCompatActivity {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
         menu.add(1,ADD,0,R.string.menu_crear);
-        menu.add(2,CAMBIAR,0,R.string.menu_cambia);
+        if(!prefs.getBoolean("off",true)){ //Si no estamos en modo offline nos permite visualizar las notas locales y las subidas al server
+            menu.add(2,CAMBIAR,0,R.string.menu_cambia);
+        }
         menu.add(3,EXIST,0,R.string.menu_salir);
         super.onCreateOptionsMenu(menu);
         return true;
@@ -96,17 +102,14 @@ public class NotasPropias extends AppCompatActivity {
                 return true;
             case CAMBIAR:
                     if(database.equals("Notas")){
-                        editor.putBoolean("offline",true);
                         database = "notasPersonales";
-                        textLista.setText("Notas modo offline ");
-                        textLista.setX(225);
+
+                        textLista.setText(""+getString(R.string.notas_offline));
             }else{
-                        editor.putBoolean("offline",false);
+
                 database = "Notas";
-                        textLista.setText("Notas personales subidas al servidor");
-                        textLista.setX(175);
+                        textLista.setText(""+getString(R.string.notas_person));
             }
-                editor.commit();
             arrayNotas.clear();
             mostrarNotas();
                 return true;
@@ -125,15 +128,23 @@ public class NotasPropias extends AppCompatActivity {
     public void actividad (String act){
         String type = "";
         if(act.equals("add")){
-            type = "add";
-            Intent intent= new Intent(getApplicationContext(),AddNota.class);
-            intent.putExtra("type",type);
-            startActivity(intent);
+            if(database.equals("notasPersonales")){
+                muestraError(""+getString(R.string.adv_notas));
+            }else{
+                Intent intent= new Intent(getApplicationContext(),AddNota.class);
+                startActivity(intent);
+            }
+
         }else if (act.equals("ver")){
             Intent intent = new Intent(getApplicationContext(),VerNota.class);
             intent.putExtra("autor",getAutor());
             intent.putExtra("texto",getContenido);
             intent.putExtra("urge","N");
+            if(database.equals("Notas")){
+                intent.putExtra("offline","Normal");
+            }else{
+                intent.putExtra("offline","Off");
+            }
             startActivity(intent);
         }
     }
@@ -143,9 +154,11 @@ public class NotasPropias extends AppCompatActivity {
      */
     private void mostrarNotas(){
             db = new BDadap(this,database);
+        Log.i("Response",""+database.toString());
         Cursor c;
         if(database.equals("Notas")){
-            c = db.getTodasNotas(prefs.getString("autor",""));
+            c = db.getTodasNotas(prefs.getString("autor","").trim());
+            Log.i("Response","1111 "+prefs.getString("autor",""));
         }else{
             c = db.getTodasNotasOff();
         }
@@ -153,7 +166,7 @@ public class NotasPropias extends AppCompatActivity {
         String texto = "";
 
         if (c.moveToFirst()== false ){
-            textLista.setText("No hay notas para mostrar");
+            textLista.setText(""+getString(R.string.noNotas));
         }else{
             do{
                 texto = c.getString(2);
@@ -201,5 +214,23 @@ public class NotasPropias extends AppCompatActivity {
          }while(c.moveToNext());
 }
         return texto;
+    }
+
+    /**
+     * Funcion que unicamente saca un AlertDialog de 1 boton que tendra el texto que queramos
+     * @param textoError texto a mostrar en el cuadro de dialogo
+     */
+    private void muestraError(String textoError){
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(NotasPropias.this);
+        builder.setTitle("Advertencia");
+        builder.setMessage(textoError);
+        builder.setCancelable(false);
+        builder.setPositiveButton(""+getString(R.string.alert_entendido), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent= new Intent(getApplicationContext(),AddNota.class);
+                startActivity(intent);}
+        });
+        builder.show();
     }
 }

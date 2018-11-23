@@ -36,9 +36,13 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * Clase AddNota gestiona el añadido de notas a las bases de datos
+ */
 public class AddNota extends AppCompatActivity implements Response.Listener<JSONObject>,Response.ErrorListener{
     EditText  TEXTO; //EDITTEXT DEL ACTIVITY
     TextView AUTOR;
+    String autorNota;//AUTOR DE LA NOTA, SE ASIGNARA POR EL SHAREDPREFERENCES
     CheckBox URGE; //CHECKBOX DEL ACTIVITY
     private static final int SALIR = Menu.FIRST; //OPCION DE MENU
     BDadap DB; //ADAPTADOR DE LA BD
@@ -56,25 +60,28 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
 
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().setIcon(R.drawable.icon);
-        getSupportActionBar().setTitle("WeUnite > Añadir nota");
+        getSupportActionBar().setTitle("WeUnite > "+getString(R.string.add_nota));
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5641cb")));
 
         //INICIALIZACION DE VARIABLES Y OBTENCION DE DATOS VARIOS
         prefs = this.getSharedPreferences("MisPreferencias", Context.MODE_PRIVATE);
         editor = prefs.edit();
-        if(prefs.getBoolean("off",true)){
-            database = "notasPersonales";
-        }else{
-            database = "Notas";
-        }
         ip = prefs.getString("ip","");
         Button add = findViewById(R.id.button_Add);
         AUTOR = findViewById(R.id.tvAutor);
-         TEXTO = findViewById(R.id.editText_Texto);
-         URGE = findViewById(R.id.checkBox);
+        TEXTO = findViewById(R.id.editText_Texto);
+        URGE = findViewById(R.id.checkBox);
         request = Volley.newRequestQueue(this);
+        autorNota = prefs.getString("autor","");
 
         AUTOR.setText("Autor: "+prefs.getString("autor",""));
+        if(prefs.getBoolean("off",true)){
+            database = "notasPersonales";
+            Log.i("Response:","Que hago aqui");
+        }else{
+            database = "Notas";
+        }
+
         //CLICK DEL BOTON
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,6 +91,7 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
                     enviaDatos();
                     addNota();
                 }else{
+                    autorNota = "personal";
                     addNota();
                 }
 
@@ -96,19 +104,20 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
      */
     private void enviaDatos() {
         progreso = new ProgressDialog(this);
-        progreso.setMessage("Enviando datos.... Si tarda demasiado debería revisar si la ip introducida es correcta");
+        progreso.setMessage(""+getString(R.string.inserta_progress));
         progreso.show();
         String url="";
 
         //COMPRUEBA SI EL CHECK DE URGENTE ESTA ACTIVO, ASI REALIZA UNA CONSULTA U OTRA
         if (URGE.isChecked()){
-             url = "http://"+ip+"/WebService/enviarDatos.php?autor="+prefs.getString("autor","").toString()+
+             url = "http://"+ip+"/WebService/enviarDatos.php?autor="+autorNota+
                     "&texto="+TEXTO.getText().toString()+"&urgente=S";
         }else{
-            url = "http://"+ip+"/WebService/enviarDatos.php?autor="+prefs.getString("autor","").toString()+
+            url = "http://"+ip+"/WebService/enviarDatos.php?autor="+autorNota+
                     "&texto="+TEXTO.getText().toString()+"&urgente=N";
         }
         url = url.replace(" ","%20");//REMPLAZA LOS ESPACIOS PORQUE SINO DARIA ERROR
+        url = url.replace("\n","%20");//REMPLAZA LOS RETORNOS DE CARRO PORQUE SINO DARIA ERROR
         jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,url,null,this,this);
         request.add(jsonObjectRequest);
     }
@@ -127,7 +136,7 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
     }
 
     /**
-     * Gestiona la pulsacion del menu
+     * Gestiona las pulsaciones del menu
      * @param item opcion seleciona
      * @return la opcion correcta
      */
@@ -150,16 +159,19 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
     }
 
 
+    /**
+     * Funcion que añade a la bd interna la nota
+     */
     private void addNota(){
         DB = new BDadap(this,database);
-        String autor, texto;
+        String  texto;
         Boolean urge;
-        autor = AUTOR.getText().toString().trim();
+
         texto = TEXTO.getText().toString().trim();
         urge = URGE.isChecked();
 
-        if (!autor.equals("") ||!texto.equals("")){
-            Cursor c = DB.getNota(autor);
+        if (!texto.equals("")){
+            Cursor c = DB.getNota(autorNota);
             String getTitle="";
             if(c.moveToFirst()){
                 do{
@@ -167,38 +179,42 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
                 }while (c.moveToNext());
             }
             if(urge){
-                Toast.makeText(this,"Enviada", Toast.LENGTH_SHORT).show();
-                DB.addNote(autor,texto,"S");
-                actividad(autor,texto,"S");
+                DB.addNote(autorNota,texto,"S");
+                actividad(autorNota,texto,"S");
             }else{
-                Toast.makeText(this,"Enviada", Toast.LENGTH_SHORT).show();
-                DB.addNote(autor,texto,"N");
-                actividad(autor,texto,"N");
+                DB.addNote(autorNota,texto,"N");
+                actividad(autorNota,texto,"N");
             }
         }else{
             Toast.makeText(this,"Introduzca un autor y un texto", Toast.LENGTH_SHORT).show();
         }
     }
 
+    /**
+     * Lanza la activity de ver la nota con los valores introducidos
+     * @param autor autor de la nota
+     * @param texto texto de la nota
+     * @param urge si la nota es urgente o no
+     */
     public void actividad (String autor, String texto, String urge){
         Intent intent = new Intent(AddNota.this,VerNota.class);
-        intent.putExtra("autor",autor);
+        intent.putExtra("autor",autorNota);
         intent.putExtra("texto",texto);
         intent.putExtra("urge",urge);
         startActivity(intent);
     }
 
     /**
-     * Si la conexion es erronea entra aqui
+     * Si la conexion es erronea en el response entra aqui
      * @param error error asociado
      */
     @Override
     public void onErrorResponse(VolleyError error) {
-        progreso.hide();
+        muestraError(error.toString());
     }
 
     /**
-     * Si la conexion es correcta entra aqui
+     * Si la conexion es correcta en el response entra aqui
      * @param response la consulta a la bd
      */
     @Override
@@ -216,5 +232,19 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
         TEXTO.setText("");
         URGE.setChecked(false);
     }
-
+    /**
+     * Funcion que unicamente saca un AlertDialog de 1 boton que tendra el texto que queramos
+     * @param textoError texto a mostrar en el cuadro de dialogo
+     */
+    private void muestraError(String textoError){
+        AlertDialog.Builder builder = new AlertDialog.Builder(AddNota.this);
+        builder.setTitle("Error");
+        builder.setMessage(textoError);
+        builder.setCancelable(false);
+        builder.setPositiveButton(""+getString(R.string.alert_entendido), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) { }
+        });
+        builder.show();
+    }
 }

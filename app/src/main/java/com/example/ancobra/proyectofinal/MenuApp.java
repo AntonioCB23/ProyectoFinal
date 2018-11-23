@@ -12,6 +12,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+/**
+ * Clase MenuApp que gestiona el menu principal de WeUnite
+ */
 public class MenuApp  extends AppCompatActivity {
     SharedPreferences prefs; //PREFERENCIAS
     SharedPreferences.Editor editor; //EDITOR DE PREFENCIAS
@@ -22,9 +25,10 @@ public class MenuApp  extends AppCompatActivity {
 
             this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
             getSupportActionBar().setIcon(R.drawable.icon);
-            getSupportActionBar().setTitle("WeUnite > Menú");
+            getSupportActionBar().setTitle("WeUnite > "+getString(R.string.menu));
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#5641cb")));
 
+            //CARGA DE PREFERENCIAS E INICIALIZACION DE COMPONENTES
             Button btnNuevo = (Button) findViewById(R.id.btnNuevo);
             Button btnPen = (Button) findViewById(R.id.btnPendiente);
             Button btnNotas = (Button) findViewById(R.id.btnMisNotas);
@@ -45,8 +49,6 @@ public class MenuApp  extends AppCompatActivity {
             btnNuevo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast toast = Toast.makeText(getApplicationContext(), "Has seleccionado una nueva nota recordatoria", Toast.LENGTH_SHORT);
-                    toast.show();
                     Intent nuevaNota= new Intent(getApplicationContext(), AddNota.class);
                     nuevaNota.putExtra("Type","add");
                     startActivity(nuevaNota);
@@ -56,8 +58,6 @@ public class MenuApp  extends AppCompatActivity {
             btnPen.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast toast = Toast.makeText(getApplicationContext(), "Has seleccionado ver las notas pendientes", Toast.LENGTH_SHORT);
-                    toast.show();
                     Intent notasPen= new Intent(getApplicationContext(), NotasPen.class);
                     startActivity(notasPen);
                 }
@@ -66,8 +66,6 @@ public class MenuApp  extends AppCompatActivity {
             btnNotas.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast toast = Toast.makeText(getApplicationContext(), "Has seleccionado ver tus notas publicadas", Toast.LENGTH_SHORT);
-                    toast.show();
                     Intent NotasPropias= new Intent(getApplicationContext(), NotasPropias.class);
                     startActivity(NotasPropias);
                 }
@@ -76,8 +74,6 @@ public class MenuApp  extends AppCompatActivity {
             btnSalir.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast toast = Toast.makeText(getApplicationContext(), "Salir del programa", Toast.LENGTH_SHORT);
-                    toast.show();
                     Intent Main= new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(Main);
                 }

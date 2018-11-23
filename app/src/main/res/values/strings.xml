@@ -20,4 +20,27 @@
     <string name="menu_act">Actualizar</string>
     <string name="menu_cambia">Cambia modo</string>
     <string name="menu_subir">Subir al servidor</string>
+    <string name="alert_entendido">Entendido</string>
+    <string name="alert_si">Sí</string>
+    <string name="inserta_progress">Enviando Datos....</string>
+    <string name="comprueba_conex">Comprobando conexión...</string>
+    <string name="menu">Menú</string>
+    <string name="notasPropias">Notas Propias</string>
+    <string name="notas_offline">Notas modo offline</string>
+    <string name="notas_person">Notas personales subidas al servidor</string>
+    <string name="noNotas">No hay notas para mostrar</string>
+    <string name="regUser">Registrar usuario</string>
+    <string name="pwdError">Las contraseñas no coinciden</string>
+    <string name="campos">Por favor, rellene todos los campos</string>
+    <string name="alert_confirm">¿Subir la nota al servidor compartido?</string>
+    <string name="alert_quest">Mensaje de confirmación</string>
+    <string name="datos_correcto">Datos enviados con éxito</string>
+    <string name="datos_cancel">Cancelada la operación</string>
+    <string name="borrarNota">Se borrará la nota, estás seguro?</string>
+    <string name="borrarConfirm">Datos borrados con éxito</string>
+    <string name="login">Iniciar Sesión</string>
+    <string name="cargando">Cargando...</string>
+    <string name="conexion_error">Error en la conexión, compruebe la ip y que la conexión esté activa</string>
+    <string name="notas_pen">Notas pendientes</string>
+    <string name="adv_notas">Las notas subidas ahora serán enviadas al servidor, si quiere guardarlas solamente en el dispositivo utilice el modo offline</string>
 </resources>
