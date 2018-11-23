@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+/**
+ * Clase BDadap que gestiona las conexiones entre las bases de datos internas del dispositivo
+ */
 public class BDadap extends SQLiteOpenHelper {
     //COLUMNAS DE LA BASE DE DATOS
     public static final String TABLE_ID ="idNota";

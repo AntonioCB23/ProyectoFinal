@@ -33,7 +33,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONObject;
 
 /**
- * Clase VerNota que gestiona la visualización de la nota seleccionada
+ * Clase VerNota que gestiona la visualizacion de la nota seleccionada
  */
 public class VerNota extends AppCompatActivity implements Response.Listener<JSONObject>,Response.ErrorListener{
     String autor, texto;

@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+/**
+ * Clase AdapBDLogin que gestiona la conexion a la bd interna de usuarios
+ */
 public class AdapBDLogin extends SQLiteOpenHelper {
     //COLUMNAS DE LA BASE DE DATOS
     public static final String USER ="username";

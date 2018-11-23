@@ -12,7 +12,9 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-//ADAPTADOR PERSONALIZADO
+/**
+ * Clase Adaptador adaptador personalizado para mostrar elementos de una manera en concreto en el ListView
+ */
 public class Adaptador extends BaseAdapter {
     ArrayList<Nota> Notas;
     LayoutInflater inflador;

@@ -97,7 +97,7 @@ public class Register extends AppCompatActivity implements Response.Listener<JSO
      */
     private void insertaBDremota() {
         progreso = new ProgressDialog(this);
-        progreso.setMessage(""+R.string.inserta_progress);
+        progreso.setMessage(""+getString(R.string.inserta_progress));
         progreso.show();
         String url="";
 

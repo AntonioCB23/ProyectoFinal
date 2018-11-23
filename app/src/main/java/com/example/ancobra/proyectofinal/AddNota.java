@@ -37,7 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * Clase AddNota gestiona el añadido de notas a las bases de datos
+ * Clase AddNota gestiona el anadido de notas a las bases de datos
  */
 public class AddNota extends AppCompatActivity implements Response.Listener<JSONObject>,Response.ErrorListener{
     EditText  TEXTO; //EDITTEXT DEL ACTIVITY
@@ -100,7 +100,7 @@ public class AddNota extends AppCompatActivity implements Response.Listener<JSON
     }
 
     /**
-     * Metodo que gestiona el añadido de la nota a la bd externa
+     * Metodo que gestiona el anadido de la nota a la bd externa
      */
     private void enviaDatos() {
         progreso = new ProgressDialog(this);

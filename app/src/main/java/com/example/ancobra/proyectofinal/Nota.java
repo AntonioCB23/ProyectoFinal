@@ -1,6 +1,8 @@
 package com.example.ancobra.proyectofinal;
 
-//CLASE CONTENEDORA PARA GUARDAR LOS DATOS DE LAS NOTAS QUE GESTIONA LA APP
+/**
+ * Clase Nota contenedora de los datos de las notas que se gestionaran en la aplicacion
+ */
 public class Nota {
     private String autor;
     private String texto;
