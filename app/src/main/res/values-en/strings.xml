@@ -42,4 +42,5 @@
     <string name="conexion_error">Connection error, check your ip and the connection its up</string>
     <string name="notas_pen">Pending notes</string>
     <string name="adv_notas">The uploaded notes will be added to the server, to save locally use the offline mode</string>
+    <string name="user_defined">This user already registered, try other name</string>
 </resources>

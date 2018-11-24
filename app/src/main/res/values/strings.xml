@@ -43,4 +43,5 @@
     <string name="conexion_error">Error en la conexión, compruebe la ip y que la conexión esté activa</string>
     <string name="notas_pen">Notas pendientes</string>
     <string name="adv_notas">Las notas subidas ahora serán enviadas al servidor, si quiere guardarlas solamente en el dispositivo utilice el modo offline</string>
+    <string name="user_defined">Usuario ya registrado, pruebe con otro nombre</string>
 </resources>

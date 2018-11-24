@@ -45,7 +45,6 @@ public class AdapBDLogin extends SQLiteOpenHelper {
      * Añade los datos a la tabla con los param pasados
      * @param autor de la nota
      * @param texto asociado a la nota
-     * @param urgente indica si la nota es urgente o no
      */
     public void addUser(String autor, String texto){
         ContentValues valores = new ContentValues();

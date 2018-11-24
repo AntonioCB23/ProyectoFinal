@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -66,10 +67,14 @@ public class Register extends AppCompatActivity implements Response.Listener<JSO
             public void onClick(View view) {
                 if (!USER.getText().toString().equals("") && !PWD.getText().toString().equals("")&& !PWD2.getText().toString().equals("")){
                     if(PWD.getText().toString().equals(PWD2.getText().toString())){
-                        insertarUsuario();
-                        insertaBDremota();
-                        Intent it= new Intent(Register.this, Login.class);
-                        startActivity(it);
+                        if(compruebaUsuario()){
+                            muestraError(getString(R.string.user_defined));
+                        }else{
+                            insertarUsuario();
+                            insertaBDremota();
+                            Intent it= new Intent(Register.this, Login.class);
+                            startActivity(it);
+                        }
                     }else{
                         muestraError(""+getString(R.string.pwdError));
                     }
@@ -92,6 +97,21 @@ public class Register extends AppCompatActivity implements Response.Listener<JSO
         DB.addUser(user,pass);
     }
 
+    /**
+     * Comprueba si el usuario que se intenta introducir ya existe
+     * @return si el usuario ya existe
+     */
+    protected boolean compruebaUsuario(){
+        DB = new AdapBDLogin(this);
+        String user;
+        user = USER.getText().toString().trim();
+        Cursor c = DB.getUser(user);
+        if(c.moveToFirst()==false){
+            return false;
+        }else{
+            return true;
+        }
+    }
     /**
      * Metodo que gestiona el registro del usuario en la bd externa
      */
